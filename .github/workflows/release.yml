@@ -33,7 +33,7 @@ jobs:
           node-version: 22
           cache: pnpm
           registry-url: https://npm.pkg.github.com/
-          scope: '@fluixi'
+          scope: '@bambiste'
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
