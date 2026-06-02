@@ -33,6 +33,9 @@
     "send": "pnpm publish --tag latest --no-git-check",
     "artifact:copy": "cp ~/npm-artifacts/.npmrc .npmrc"
   },
+  "devDependencies": {
+    "@types/node": "^22.0.0"
+  },
   "dependencies": {
     "@babel/preset-react": "^7.28.5",
     "@rollup/plugin-babel": "^6.1.0",
