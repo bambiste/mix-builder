@@ -1,0 +1,97 @@
+{
+  "$schema": "../schema/build-config.schema.json",
+  "builder": "both",
+  "outdir": "dist",
+  "formats": ["es", "cjs"],
+  "extensions": [".ts", ".tsx", ".js", ".jsx"],
+  "reactExternal": true,
+  "nodeEnv": "production",
+  "log": true,
+  "clean": true,
+  "rollup": {
+    "entries": {
+      "src/index.ts": {
+        "name": "MyLibrary",
+        "formats": ["es", "cjs", "umd"],
+        "buildType": "bundled",
+        "externals": ["lodash"],
+        "extensions": [".ts", ".tsx"]
+      },
+      "src/utils/index.ts": {
+        "formats": ["es", "cjs"],
+        "buildType": "external"
+      }
+    },
+    "formats": ["es", "cjs"],
+    "exports": "named",
+    "sourcemap": true,
+    "minify": false,
+    "treeshake": true,
+    "preserveModules": false,
+    "externals": ["react", "react-dom"],
+    "reactExternal": true,
+    "litExternal": false,
+    "nodeEnv": "production",
+    "plugins": {
+      "typescript": {
+        "enabled": true,
+        "config": {
+          "declaration": true,
+          "declarationMap": true
+        }
+      },
+      "babel": {
+        "enabled": true,
+        "includes": ["src/**/*.ts", "src/**/*.tsx"],
+        "exclude": ["node_modules/**", "**/*.test.ts"]
+      }
+    },
+    "copy": [
+      {
+        "src": "README.md",
+        "dest": "dist/README.md"
+      },
+      {
+        "src": "LICENSE",
+        "dest": "dist/LICENSE"
+      }
+    ],
+    "copy_pkg": true
+  },
+  "esbuild": {
+    "entries": ["src/components/index.ts", "src/hooks/index.ts"],
+    "formats": ["esm"],
+    "bundle": true,
+    "splitting": true,
+    "minify": true,
+    "minifySyntax": true,
+    "minifyWhitespace": true,
+    "minifyIdentifiers": true,
+    "sourcemap": false,
+    "treeShaking": true,
+    "platform": "browser",
+    "target": "es2021",
+    "outdir": "dist",
+    "outExtension": {
+      ".js": ".mjs"
+    },
+    "entryNames": "[name]",
+    "chunkNames": "chunks/[name]-[hash]",
+    "assetNames": "assets/[name]-[hash]",
+    "legalComments": "none",
+    "charset": "utf8",
+    "jsx": "automatic",
+    "jsxImportSource": "react",
+    "noExternal": false,
+    "pkgExternals": false,
+    "reactExternal": true,
+    "litExternal": false,
+    "libExternal": false,
+    "env": "production",
+    "nodeEnv": "production",
+    "log": true,
+    "debug": false,
+    "dts": true,
+    "copy_pkg": true
+  }
+}

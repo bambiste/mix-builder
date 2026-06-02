@@ -1,0 +1,54 @@
+{
+  "name": "@fluixi/mix-builder",
+  "version": "0.0.0",
+  "private": false,
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/",
+    "access": "public"
+  },
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "bin": {
+    "mix-builder": "./dist/lib/builder/cli.js",
+    "mix-publisher": "./dist/lib/package-publisher/cli.js"
+  },
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {
+      "development": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "test": "vitest",
+    "build": "tsc -p tsconfig.lib.json && node copy-build.js",
+    "send": "pnpm publish --tag latest --no-git-check",
+    "artifact:copy": "cp ~/npm-artifacts/.npmrc .npmrc"
+  },
+  "dependencies": {
+    "@babel/preset-react": "^7.28.5",
+    "@rollup/plugin-babel": "^6.1.0",
+    "@rollup/plugin-commonjs": "^29.0.0",
+    "@rollup/plugin-json": "^6.1.0",
+    "@rollup/plugin-node-resolve": "^16.0.3",
+    "@rollup/plugin-terser": "^0.4.4",
+    "@rollup/plugin-typescript": "^12.3.0",
+    "chalk": "^5.6.2",
+    "esbuild": "^0.27.1",
+    "fast-glob": "^3.3.3",
+    "inquirer": "^13.1.0",
+    "log-update": "^7.0.2",
+    "ora": "^9.0.0",
+    "rollup": "^4.53.5",
+    "rollup-plugin-copy": "^3.5.0",
+    "tslib": "^2.3.0"
+  }
+}

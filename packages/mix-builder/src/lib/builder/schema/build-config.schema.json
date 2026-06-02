@@ -1,0 +1,747 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/schemas/build-config.schema.json",
+  "title": "BuildConfig",
+  "description": "Configuration for mix-builder supporting both Rollup and ESBuild",
+  "type": "object",
+  "properties": {
+    "rollup": {
+      "$ref": "#/$defs/rollupBuilder"
+    },
+    "esbuild": {
+      "$ref": "#/$defs/esbuildBuilder"
+    },
+    "builder": {
+      "description": "Builder to use",
+      "type": "string",
+      "enum": [
+        "rollup",
+        "esbuild",
+        "both"
+      ],
+      "default": "both"
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "baseBuilder": {
+      "type": "object",
+      "properties": {
+        "extensions": {
+          "description": "File extensions to resolve",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            ".js",
+            ".jsx",
+            ".ts",
+            ".tsx"
+          ]
+        },
+        "externals": {
+          "description": "External dependencies to exclude from bundle",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "formats": {
+          "description": "Output module formats",
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "es",
+              "esm",
+              "cjs",
+              "umd",
+              "iife"
+            ]
+          },
+          "default": [
+            "es"
+          ]
+        },
+        "outdir": {
+          "description": "Output directory",
+          "type": "string",
+          "default": "dist"
+        },
+        "rootDir": {
+          "description": "Root directory",
+          "type": "string",
+          "default": "."
+        },
+        "reactExternal": {
+          "description": "Treat React as external",
+          "type": "boolean",
+          "default": false
+        },
+        "litExternal": {
+          "description": "Treat Lit as external",
+          "type": "boolean",
+          "default": false
+        },
+        "libExternal": {
+          "description": "Treat library packages as external",
+          "type": "boolean",
+          "default": false
+        },
+        "pkgExternal": {
+          "description": "Treat package.json dependencies as external",
+          "type": "boolean",
+          "default": false
+        },
+        "skipExternal": {
+          "description": "Skip external processing",
+          "type": "boolean",
+          "default": false
+        },
+        "nodeEnv": {
+          "description": "Node environment",
+          "type": "string",
+          "enum": [
+            "development",
+            "production"
+          ],
+          "default": "production"
+        },
+        "debug": {
+          "description": "Enable debug logging",
+          "type": "boolean",
+          "default": false
+        },
+        "log": {
+          "description": "Enable build logging",
+          "type": "boolean",
+          "default": true
+        },
+        "dts": {
+          "description": "Generate TypeScript declarations",
+          "type": "boolean",
+          "default": false
+        },
+        "copy_pkg": {
+          "description": "Copy package.json to output",
+          "type": "boolean",
+          "default": false
+        }
+      }
+    },
+    "entryConfig": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/baseBuilder"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "name": {
+              "description": "Entry point name",
+              "type": "string"
+            },
+            "buildType": {
+              "description": "Build bundling strategy",
+              "type": "string",
+              "enum": [
+                "bundled",
+                "external",
+                "inline",
+                "runtime"
+              ],
+              "default": "bundled"
+            },
+            "file": {
+              "description": "Entry file path",
+              "type": "string"
+            },
+            "filePath": {
+              "description": "Resolved entry file path",
+              "type": "string"
+            },
+            "format": {
+              "description": "Output format for this entry",
+              "oneOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "es",
+                    "esm",
+                    "cjs",
+                    "umd",
+                    "iife"
+                  ]
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "enum": [
+                      "es",
+                      "esm",
+                      "cjs",
+                      "umd",
+                      "iife"
+                    ]
+                  }
+                }
+              ]
+            },
+            "globals": {
+              "description": "Global variable mappings for UMD/IIFE",
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "entries": {
+      "oneOf": [
+        {
+          "description": "Object mapping entry paths to configurations",
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/entryConfig"
+          }
+        },
+        {
+          "description": "Array of entry file paths",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      ]
+    },
+    "rollupBuilder": {
+      "type": "object",
+      "properties": {
+        "entries": {
+          "$ref": "#/$defs/entries"
+        },
+        "buildType": {
+          "type": "string",
+          "enum": [
+            "bundled",
+            "external",
+            "inline",
+            "runtime"
+          ],
+          "default": "bundled"
+        },
+        "extensions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            ".js",
+            ".jsx",
+            ".ts",
+            ".tsx"
+          ]
+        },
+        "externals": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "formats": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "es",
+              "cjs",
+              "umd",
+              "iife"
+            ]
+          },
+          "default": [
+            "es"
+          ]
+        },
+        "exports": {
+          "description": "Export mode for Rollup",
+          "type": "string",
+          "enum": [
+            "auto",
+            "default",
+            "named",
+            "none"
+          ],
+          "default": "named"
+        },
+        "sourcemap": {
+          "description": "Generate source maps",
+          "type": "boolean",
+          "default": true
+        },
+        "minify": {
+          "description": "Minify output",
+          "type": "boolean",
+          "default": false
+        },
+        "treeshake": {
+          "description": "Enable tree shaking",
+          "type": "boolean",
+          "default": true
+        },
+        "preserveModules": {
+          "description": "Preserve module structure",
+          "type": "boolean",
+          "default": false
+        },
+        "outdir": {
+          "description": "Output directory",
+          "type": "string",
+          "default": "dist"
+        },
+        "rootDir": {
+          "description": "Root directory",
+          "type": "string",
+          "default": "."
+        },
+        "plugins": {
+          "description": "Rollup plugin configurations",
+          "type": "object",
+          "properties": {
+            "typescript": {
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "config": {
+                  "type": "object"
+                }
+              }
+            },
+            "babel": {
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "includes": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "exclude": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          "additionalProperties": true
+        },
+        "copy": {
+          "description": "Files to copy after build",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "src": {
+                "type": "string"
+              },
+              "dest": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "src",
+              "dest"
+            ]
+          }
+        },
+        "copyFiles": {
+          "description": "Advanced file copying with glob pattern support",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "from": {
+                "description": "Source path or glob pattern(s)",
+                "oneOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                ]
+              },
+              "to": {
+                "description": "Destination path",
+                "type": "string"
+              },
+              "flatten": {
+                "description": "Flatten directory structure",
+                "type": "boolean",
+                "default": false
+              },
+              "rename": {
+                "description": "Rename pattern or function name",
+                "type": "string"
+              }
+            },
+            "required": [
+              "from",
+              "to"
+            ]
+          }
+        },
+        "reactExternal": {
+          "type": "boolean",
+          "default": false
+        },
+        "litExternal": {
+          "type": "boolean",
+          "default": false
+        },
+        "libExternal": {
+          "type": "boolean",
+          "default": false
+        },
+        "pkgExternal": {
+          "type": "boolean",
+          "default": false
+        },
+        "nodeEnv": {
+          "type": "string",
+          "enum": [
+            "development",
+            "production"
+          ],
+          "default": "production"
+        },
+        "log": {
+          "type": "boolean",
+          "default": true
+        },
+        "copy_pkg": {
+          "type": "boolean",
+          "default": false
+        }
+      },
+      "required": [
+        "entries"
+      ],
+      "additionalProperties": true
+    },
+    "esbuildBuilder": {
+      "type": "object",
+      "properties": {
+        "entries": {
+          "$ref": "#/$defs/entries"
+        },
+        "buildType": {
+          "type": "string",
+          "enum": [
+            "bundled",
+            "external",
+            "inline"
+          ],
+          "default": "bundled"
+        },
+        "extensions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            ".js",
+            ".jsx",
+            ".ts",
+            ".tsx"
+          ]
+        },
+        "externals": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "formats": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "es",
+              "esm",
+              "cjs",
+              "iife"
+            ]
+          },
+          "default": [
+            "esm"
+          ]
+        },
+        "bundle": {
+          "description": "Bundle dependencies",
+          "type": "boolean",
+          "default": true
+        },
+        "splitting": {
+          "description": "Enable code splitting (ESM only)",
+          "type": "boolean",
+          "default": true
+        },
+        "minify": {
+          "description": "Minify output",
+          "type": "boolean",
+          "default": true
+        },
+        "minifySyntax": {
+          "description": "Minify syntax",
+          "type": "boolean",
+          "default": true
+        },
+        "minifyWhitespace": {
+          "description": "Minify whitespace",
+          "type": "boolean",
+          "default": true
+        },
+        "minifyIdentifiers": {
+          "description": "Minify identifiers",
+          "type": "boolean",
+          "default": true
+        },
+        "sourcemap": {
+          "description": "Generate source maps",
+          "oneOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "string",
+              "enum": [
+                "inline",
+                "external",
+                "both"
+              ]
+            }
+          ],
+          "default": false
+        },
+        "treeShaking": {
+          "description": "Enable tree shaking",
+          "type": "boolean",
+          "default": true
+        },
+        "platform": {
+          "description": "Target platform",
+          "type": "string",
+          "enum": [
+            "browser",
+            "node",
+            "neutral"
+          ],
+          "default": "browser"
+        },
+        "target": {
+          "description": "JavaScript target version",
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          ],
+          "default": "es2021"
+        },
+        "outdir": {
+          "description": "Output directory",
+          "type": "string",
+          "default": "dist"
+        },
+        "rootDir": {
+          "description": "Root directory",
+          "type": "string",
+          "default": "."
+        },
+        "outExtension": {
+          "description": "Output file extensions",
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "entryNames": {
+          "description": "Entry point naming pattern",
+          "type": "string",
+          "default": "[name]"
+        },
+        "chunkNames": {
+          "description": "Chunk naming pattern",
+          "type": "string",
+          "default": "[name]-[hash]"
+        },
+        "assetNames": {
+          "description": "Asset naming pattern",
+          "type": "string",
+          "default": "[name]-[hash]"
+        },
+        "legalComments": {
+          "description": "How to handle legal comments",
+          "type": "string",
+          "enum": [
+            "none",
+            "inline",
+            "eof",
+            "linked",
+            "external"
+          ],
+          "default": "none"
+        },
+        "charset": {
+          "description": "Character encoding",
+          "type": "string",
+          "enum": [
+            "ascii",
+            "utf8"
+          ],
+          "default": "utf8"
+        },
+        "jsx": {
+          "description": "JSX transform mode",
+          "type": "string",
+          "enum": [
+            "transform",
+            "preserve",
+            "automatic"
+          ],
+          "default": "automatic"
+        },
+        "jsxImportSource": {
+          "description": "JSX import source",
+          "type": "string",
+          "default": "react"
+        },
+        "noExternal": {
+          "description": "Bundle all dependencies",
+          "type": "boolean",
+          "default": false
+        },
+        "pkgExternals": {
+          "description": "Treat package.json deps as external",
+          "type": "boolean",
+          "default": false
+        },
+        "reactExternal": {
+          "type": "boolean",
+          "default": false
+        },
+        "litExternal": {
+          "type": "boolean",
+          "default": false
+        },
+        "libExternal": {
+          "type": "boolean",
+          "default": false
+        },
+        "env": {
+          "type": "string",
+          "enum": [
+            "development",
+            "production"
+          ],
+          "default": "production"
+        },
+        "nodeEnv": {
+          "type": "string",
+          "enum": [
+            "development",
+            "production"
+          ],
+          "default": "production"
+        },
+        "log": {
+          "type": "boolean",
+          "default": true
+        },
+        "debug": {
+          "type": "boolean",
+          "default": false
+        },
+        "dts": {
+          "type": "boolean",
+          "default": false
+        },
+        "copy_pkg": {
+          "type": "boolean",
+          "default": false
+        },
+        "copyFiles": {
+          "description": "Advanced file copying with glob pattern support",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "from": {
+                "description": "Source path or glob pattern(s)",
+                "oneOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                ]
+              },
+              "to": {
+                "description": "Destination path",
+                "type": "string"
+              },
+              "flatten": {
+                "description": "Flatten directory structure",
+                "type": "boolean",
+                "default": false
+              },
+              "rename": {
+                "description": "Rename pattern or function name",
+                "type": "string"
+              }
+            },
+            "required": [
+              "from",
+              "to"
+            ]
+          }
+        },
+        "clean": {
+          "description": "Remove output directory before building",
+          "type": "boolean",
+          "default": false
+        }
+      },
+      "required": [
+        "entries"
+      ],
+      "additionalProperties": true
+    }
+  }
+}

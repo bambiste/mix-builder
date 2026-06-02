@@ -1,0 +1,26 @@
+{
+  "$schema": "./publish-config.schema.json",
+  "packages": [
+    "@fluixi/core",
+    "@fluixi/reactive",
+    "@fluixi/utils",
+    "@fluixi/signal",
+    "@fluixi/store"
+  ],
+  "excluded": ["internal", "examples", "test-packages"],
+  "excluded_packages": ["@fluixi/experimental", "@fluixi/internal-tools"],
+  "content": "**/packages/**/package.json",
+  "packages_dir": "packages",
+  "basePath": ".",
+  "type": "patch",
+  "tag": "latest",
+  "version": "1.0.0",
+  "suffix": "",
+  "access": "public",
+  "registry": "https://registry.npmjs.org",
+  "global_build": true,
+  "package_build": true,
+  "skipBuild": false,
+  "dryRun": false,
+  "timeout": 300000
+}
