@@ -1,0 +1,58 @@
+{
+  "$schema": "./build-config.schema.json",
+  "rollup": {
+    "extensions": [".ts", ".js", ".mjs"],
+    "externals": [
+      "lit",
+      "@fluixi/helpers",
+      "lit/directives/unsafe-html.js",
+      "@lit/reactive-element",
+      "lit/decorators.js",
+      "@fluixi/adf-base"
+    ],
+    "formats": ["es"],
+    "entries": {
+      "src/index.ts": {
+        "formats": ["es"],
+        "name": "AdfCard",
+        "buildType": "bundled",
+        "externals": [
+          "lit",
+          "@fluixi/helpers",
+          "lit/directives/unsafe-html.js",
+          "@lit/reactive-element",
+          "@fluixi/adf-base"
+        ]
+      },
+      "src/adf-card.ts": {
+        "formats": ["es"],
+        "buildType": "bundled",
+        "externals": [
+          "lit",
+          "@fluixi/helpers",
+          "lit/directives/unsafe-html.js",
+          "@lit/reactive-element",
+          "@fluixi/adf-base"
+        ],
+        "name": "AdfCard"
+      },
+      "src/AdfCard.ts": {
+        "formats": ["es"],
+        "buildType": "bundled",
+        "externals": [
+          "lit",
+          "@fluixi/helpers",
+          "lit/directives/unsafe-html.js",
+          "@lit/reactive-element",
+          "@fluixi/adf-base"
+        ],
+        "name": "AdfCard"
+      }
+    }
+  },
+  "esbuild": {
+    "target": "es2021",
+    "formats": ["esm", "cjs"],
+    "entries": ["src/index.ts", "src/adf-card.ts", "src/AdfCard.ts"]
+  }
+}

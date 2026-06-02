@@ -1,0 +1,17 @@
+{
+  "$schema": "../schema/build-config.schema.json",
+  "builder": "esbuild",
+  "outdir": "dist",
+  "clean": true,
+  "esbuild": {
+    "entries": ["src/index.ts"],
+    "formats": ["esm", "cjs"],
+    "platform": "browser",
+    "target": "es2020",
+    "minify": true,
+    "sourcemap": true,
+    "bundle": true,
+    "splitting": true,
+    "reactExternal": true
+  }
+}
