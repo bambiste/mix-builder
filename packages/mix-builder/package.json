@@ -40,6 +40,7 @@
     "@vitest/ui": "^3.0.0"
   },
   "dependencies": {
+    "vite": "^6.0.0",
     "@babel/preset-react": "^7.28.5",
     "@rollup/plugin-babel": "^6.1.0",
     "@rollup/plugin-commonjs": "^29.0.0",
