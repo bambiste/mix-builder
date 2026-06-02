@@ -1,0 +1,110 @@
+{
+  "$schema": "../schema/build-config.schema.json",
+  "builder": "both",
+  "outdir": "dist",
+  "subdir": "src",
+  "formats": ["esm"],
+  "extensions": [".ts", ".tsx", ".js", ".jsx"],
+  "reactExternal": true,
+  "nodeEnv": "production",
+  "log": true,
+  "debug": false,
+  "clean": true,
+  "rollup": {
+    "entries": {
+      "src/index.ts": {
+        "name": "ComponentLibrary",
+        "formats": ["es", "cjs", "umd"],
+        "buildType": "bundled",
+        "globals": {
+          "react": "React",
+          "react-dom": "ReactDOM"
+        }
+      }
+    },
+    "formats": ["es", "cjs", "umd"],
+    "exports": "named",
+    "sourcemap": true,
+    "minify": false,
+    "treeshake": true,
+    "preserveModules": false,
+    "externals": ["react", "react-dom", "react/jsx-runtime"],
+    "reactExternal": true,
+    "litExternal": false,
+    "libExternal": false,
+    "nodeEnv": "production",
+    "plugins": {
+      "typescript": {
+        "enabled": true,
+        "config": {
+          "declaration": true,
+          "declarationMap": true,
+          "jsx": "react-jsx"
+        }
+      },
+      "babel": {
+        "enabled": true,
+        "includes": ["src/**/*.ts", "src/**/*.tsx"],
+        "exclude": ["node_modules/**", "**/*.test.ts", "**/*.test.tsx", "**/*.spec.ts", "**/*.spec.tsx"]
+      }
+    },
+    "copy": [
+      {
+        "src": "README.md",
+        "dest": "dist/README.md"
+      },
+      {
+        "src": "LICENSE",
+        "dest": "dist/LICENSE"
+      },
+      {
+        "src": "package.json",
+        "dest": "dist/package.json"
+      }
+    ],
+    "copy_pkg": false
+  },
+  "esbuild": {
+    "entries": [
+      "src/components/**/*.tsx",
+      "src/hooks/**/*.ts",
+      "src/utils/**/*.ts"
+    ],
+    "formats": ["esm"],
+    "buildType": "bundled",
+    "bundle": true,
+    "splitting": true,
+    "minify": true,
+    "minifySyntax": true,
+    "minifyWhitespace": true,
+    "minifyIdentifiers": true,
+    "sourcemap": false,
+    "treeShaking": true,
+    "platform": "browser",
+    "target": ["es2020", "chrome90", "firefox88", "safari14"],
+    "outdir": "dist",
+    "subdir": "src",
+    "outExtension": {
+      ".js": ".mjs"
+    },
+    "entryNames": "[dir]/[name]",
+    "chunkNames": "chunks/[name]-[hash]",
+    "assetNames": "assets/[name]-[hash]",
+    "legalComments": "none",
+    "charset": "utf8",
+    "jsx": "automatic",
+    "jsxImportSource": "react",
+    "noExternal": false,
+    "pkgExternals": false,
+    "reactExternal": true,
+    "litExternal": false,
+    "libExternal": false,
+    "externals": ["react", "react-dom", "react/jsx-runtime"],
+    "env": "production",
+    "nodeEnv": "production",
+    "log": true,
+    "debug": false,
+    "dts": true,
+    "copy_pkg": false
+  }
+}

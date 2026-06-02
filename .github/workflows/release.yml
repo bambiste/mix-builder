@@ -1,0 +1,57 @@
+name: Release
+
+# Runs on every push to main.
+# - If there are pending changesets  → opens/updates a "Version Packages" PR
+# - If the "Version Packages" PR was just merged → builds & publishes
+on:
+  push:
+    branches: [main]
+
+concurrency: ${{ github.workflow }}-${{ github.ref }}
+
+permissions:
+  contents: write   # create version-bump commits and tags
+  packages: write   # publish to GitHub Packages
+  pull-requests: write  # open/update the "Version Packages" PR
+
+jobs:
+  release:
+    name: Version or publish
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          registry-url: https://npm.pkg.github.com/
+          scope: '@fluixi'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # The changesets action does one of two things:
+      #   1. Pending changesets present → opens/updates a "Version Packages" PR
+      #      that bumps package.json versions and writes CHANGELOGs
+      #   2. "Version Packages" PR just merged (no changesets left) → runs
+      #      `pnpm run release` which builds then publishes to GitHub Packages
+      - name: Create version PR or publish
+        uses: changesets/action@v1
+        with:
+          version: pnpm run version
+          publish: pnpm run release
+          title: 'chore: version packages'
+          commit: 'chore: version packages'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
