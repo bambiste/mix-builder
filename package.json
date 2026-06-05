@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "license": "MIT",
   "scripts": {
-    "build": "pnpm --filter @bambiste/mix-builder run build",
+    "build": "pnpm -r run build",
     "changeset": "changeset",
     "version": "changeset version",
     "release": "pnpm run build && changeset publish"
