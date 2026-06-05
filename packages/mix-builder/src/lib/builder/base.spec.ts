@@ -49,7 +49,7 @@ describe('resolveOutDir', () => {
 
   it('should use defaults when no options provided', () => {
     const entry = { filePath: '/project/src/index.ts' };
-    const result = resolveOutDir(entry as any, {});
+    const result = resolveOutDir(entry as any, { baseDir: '/project' });
 
     // Without rootDir, preserve full path relative to baseDir
     expect(result).toBe('dist/src');
@@ -58,6 +58,7 @@ describe('resolveOutDir', () => {
   it('should handle relative rootDir', () => {
     const entry = { filePath: '/project/src/utils/helpers.ts' };
     const options = {
+      baseDir: '/project',
       rootDir: './src',
       outdir: 'dist',
     };
@@ -69,6 +70,7 @@ describe('resolveOutDir', () => {
   it('should handle rootDir as subdirectory string', () => {
     const entry = { filePath: '/project/src/app/home/page.tsx' };
     const options = {
+      baseDir: '/project',
       rootDir: 'src',
       outdir: 'build',
     };
@@ -225,7 +227,7 @@ describe('resolveOutDir', () => {
   it('should handle dot notation in paths', () => {
     const entry = { filePath: '/project/./src/../src/app/index.ts' };
     const options = {
-      baseDir: '.',
+      baseDir: '/project',
       rootDir: './src',
       outdir: './dist',
     };
