@@ -7,9 +7,6 @@ import {
   resolveOutputPathAbsolute,
 } from './base.js';
 
-// Mock process.cwd() to ensure consistent tests
-const originalCwd = process.cwd();
-
 describe('resolveOutDir', () => {
   // beforeEach(() => {
   //   // Mock process.cwd() to return a consistent path for tests
