@@ -1,0 +1,44 @@
+{
+  "name": "@bambiste/mix-env",
+  "version": "0.0.0",
+  "description": "Sync .env files to/from GitHub Actions secrets across a monorepo — push local env files up as secrets, and materialize them back into files (locally, in CI, or on a VPS).",
+  "private": false,
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/",
+    "access": "public"
+  },
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "bin": {
+    "mix-env": "./dist/lib/cli.js"
+  },
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {
+      "development": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.lib.json",
+    "test": "vitest"
+  },
+  "dependencies": {
+    "chalk": "^5.6.2",
+    "fast-glob": "^3.3.3",
+    "inquirer": "^13.1.0",
+    "tslib": "^2.3.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "vitest": "^3.0.0"
+  }
+}
