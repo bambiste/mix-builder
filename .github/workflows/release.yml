@@ -1,11 +1,14 @@
 name: Release
 
-# Runs on every push to main.
+# Runs on every push to main (stable) and next (prerelease).
 # - If there are pending changesets  → opens/updates a "Version Packages" PR
 # - If the "Version Packages" PR was just merged → builds & publishes
+# On `next`, changesets is in prerelease mode (.changeset/pre.json, tag `next`), so
+# versions are `-next.X` and publish under the npm `next` dist-tag — separate from the
+# stable `latest` line on main.
 on:
   push:
-    branches: [main]
+    branches: [main, next]
 
 concurrency: ${{ github.workflow }}-${{ github.ref }}
 

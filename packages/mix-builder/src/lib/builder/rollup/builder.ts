@@ -250,8 +250,11 @@ async function resolveConfig(
     })
   );
 
-  // TypeScript plugin
-  if (options.plugins?.typescript?.enabled !== false) {
+  // TypeScript plugin — opt-in (set plugins.typescript.enabled = true). Packages that
+  // emit their own declarations via a separate `build:typings` (tsc) and bundle JS with
+  // esbuild don't need rollup's TS plugin, so it's off unless explicitly enabled.
+  const ts_options = options.plugins?.typescript;
+  if (ts_options && typeof ts_options === 'object' && ts_options.enabled) {
     const tsConfigPath = path.resolve(
       path.join(process.cwd(), 'tsconfig.build.json')
     );
