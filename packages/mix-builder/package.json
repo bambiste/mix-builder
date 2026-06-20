@@ -1,6 +1,6 @@
 {
   "name": "@bambiste/mix-builder",
-  "version": "0.0.0",
+  "version": "0.0.1-next.0",
   "private": false,
   "publishConfig": {
     "registry": "https://npm.pkg.github.com/",
