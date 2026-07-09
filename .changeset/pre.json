@@ -6,6 +6,7 @@
     "@bambiste/mix-env": "0.0.0"
   },
   "changesets": [
+    "iife-global-name",
     "no-reinstall-inquirer"
   ]
 }
