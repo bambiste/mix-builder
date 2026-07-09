@@ -105,6 +105,12 @@ export const ESBUILD_PROPS_CONFIG: ArgParserConfig[] = [
     handler: formatResolver,
   },
   {
+    // Global variable an iife build hangs its exports on (window.<globalName>).
+    // Required by esbuild for iife; ignored for esm/cjs.
+    key: 'globalName',
+    type: 'string',
+  },
+  {
     key: 'entryNames',
     type: 'string',
     defaultValue: '[name]',
