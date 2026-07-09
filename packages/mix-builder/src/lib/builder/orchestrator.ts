@@ -223,6 +223,13 @@ async function buildWithESBuild(config: BuilderConfig): Promise<BuildStats> {
         mkdirSync(outputDir, { recursive: true });
       }
 
+      // iife needs a global name to hang exports on (window.<globalName>). Take it from
+      // the entry, else the args, else derive a PascalCase name from the entry file.
+      const isIife = format === 'iife';
+      const globalName = isIife
+        ? entry.globalName || args.globalName || deriveGlobalName(inputFile)
+        : undefined;
+
       const buildOptions: BuildOptions = {
         entryPoints: [inputFile],
         outdir: outputDir,
@@ -230,6 +237,7 @@ async function buildWithESBuild(config: BuilderConfig): Promise<BuildStats> {
         sourcemap: args.sourcemap ?? false,
         target: args.target || 'es2021',
         format: format === 'esm' ? 'esm' : format,
+        ...(globalName ? { globalName } : {}),
         platform: args.platform || (format === 'cjs' ? 'node' : 'browser'),
         minify: format === 'cjs' ? false : args.minify ?? true,
         minifySyntax: args.minifySyntax ?? true,
@@ -242,11 +250,19 @@ async function buildWithESBuild(config: BuilderConfig): Promise<BuildStats> {
             args.nodeEnv || args.env || 'production'
           }"`,
         },
-        external: (args.noExternal && format !== 'cjs' ? [] : external) as any,
+        // iife is meant to be dropped into a <script> tag, so bundle everything in.
+        external: ((args.noExternal || isIife) && format !== 'cjs' ? [] : external) as any,
         treeShaking,
         splitting: format === 'esm' ? args.splitting ?? true : false,
         outExtension: args.outExtension || {
-          '.js': format === 'esm' ? '.mjs' : format === 'cjs' ? '.cjs' : '.js',
+          '.js':
+            format === 'esm'
+              ? '.mjs'
+              : format === 'cjs'
+                ? '.cjs'
+                : isIife
+                  ? '.global.js'
+                  : '.js',
         },
         entryNames: args.entryNames || '[name]',
         chunkNames: args.chunkNames || '[name]-[hash]',
@@ -394,6 +410,17 @@ function formatResolver(value?: any): 'esm' | 'cjs' | 'iife' {
     return 'esm';
   }
   return value;
+}
+
+// PascalCase global from a file path: signal/index.ts -> Signal, my-lib.ts -> MyLib.
+function deriveGlobalName(inputFile: string): string {
+  let base = path.basename(inputFile).replace(/\.[cm]?[jt]sx?$/, '');
+  if (base === 'index') base = path.basename(path.dirname(inputFile));
+  return base
+    .split(/[-_.\s]+/)
+    .filter(Boolean)
+    .map((s) => s.charAt(0).toUpperCase() + s.slice(1))
+    .join('');
 }
 
 /**
