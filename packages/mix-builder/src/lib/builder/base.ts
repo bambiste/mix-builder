@@ -72,6 +72,8 @@ export interface EntryConfig<Option> extends BaseBuilderConfig<Option> {
   extensions?: string[];
   externals?: string[];
   plugins?: any[];
+  /** iife global name (window.<globalName>); required for iife, ignored otherwise. */
+  globalName?: string;
 }
 export type Entries<Option> = Record<string, EntryConfig<Option>> | string[];
 
