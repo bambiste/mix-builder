@@ -12,7 +12,8 @@
   "types": "./dist/index.d.ts",
   "files": [
     "dist",
-    "README.md"
+    "README.md",
+    "LICENSE"
   ],
   "bin": {
     "mix-builder": "./dist/lib/builder/cli.js",
@@ -57,5 +58,7 @@
     "rollup": "^4.53.5",
     "rollup-plugin-copy": "^3.5.0",
     "tslib": "^2.3.0"
-  }
+  },
+  "license": "MIT",
+  "description": "A fast esbuild + Rollup library bundler: multi-format output (esm/cjs/iife), CDN globals, and per-file raw + gzip size reporting."
 }
