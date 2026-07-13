@@ -2,10 +2,10 @@ name: Release
 
 # Runs on every push to main (stable) and next (prerelease).
 # - If there are pending changesets  → opens/updates a "Version Packages" PR
-# - If the "Version Packages" PR was just merged → builds & publishes
+# - If the "Version Packages" PR was just merged → builds & publishes to public npm
 # On `next`, changesets is in prerelease mode (.changeset/pre.json, tag `next`), so
-# versions are `-next.X` and publish under the npm `next` dist-tag — separate from the
-# stable `latest` line on main.
+# versions are `-next.X`. `changeset publish` puts them on npm's `latest` tag; the
+# "Advance prerelease dist-tag" step then points the `next` dist-tag at them.
 on:
   push:
     branches: [main, next]
@@ -14,7 +14,7 @@ concurrency: ${{ github.workflow }}-${{ github.ref }}
 
 permissions:
   contents: write   # create version-bump commits and tags
-  packages: write   # publish to GitHub Packages
+  id-token: write   # npm publish provenance (OIDC), when enabled
   pull-requests: write  # open/update the "Version Packages" PR
 
 jobs:
@@ -31,24 +31,32 @@ jobs:
         with:
           version: 10
 
+      # NOTE: no `registry-url` here on purpose — it writes a temp .npmrc via
+      # NPM_CONFIG_USERCONFIG that authenticates npm with NODE_AUTH_TOKEN, shadowing
+      # the token the "Configure registry auth" step writes to ~/.npmrc → E404 on
+      # publish. Auth must come from ~/.npmrc. (Re-add only alongside provenance.)
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: pnpm
-          registry-url: https://npm.pkg.github.com/
-          scope: '@bambiste'
+
+      # Both @bambiste packages publish to public npm. pnpm v10 ignores _authToken
+      # lines in a committed project .npmrc, so write the token to the user ~/.npmrc.
+      - name: Configure registry auth
+        run: echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" >> ~/.npmrc
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       # The changesets action does one of two things:
       #   1. Pending changesets present → opens/updates a "Version Packages" PR
       #      that bumps package.json versions and writes CHANGELOGs
       #   2. "Version Packages" PR just merged (no changesets left) → runs
-      #      `pnpm run release` which builds then publishes to GitHub Packages
+      #      `pnpm run release` (build + `changeset publish`) → publishes to npm.
       - name: Create version PR or publish
+        id: changesets
         uses: changesets/action@v1
         with:
           version: pnpm run version
@@ -57,4 +65,27 @@ jobs:
           commit: 'chore: version packages'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # NPM_TOKEN: publishes @bambiste/* to public npm (registry from publishConfig).
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          # Provenance: enable ONLY after the repo is public (hard-fails on private):
+          # NPM_CONFIG_PROVENANCE: true
+
+      # `changeset publish` puts prerelease versions on npm's `latest` tag but never
+      # advances the prerelease dist-tag (`next`). Point that tag at each freshly
+      # published version so `@bambiste/x@next` resolves to the release we just cut.
+      # No-op on stable (main), where there's no pre.json and `latest` is authoritative.
+      - name: Advance prerelease dist-tag
+        if: steps.changesets.outputs.published == 'true'
+        run: |
+          TAG=$(node -p "require('./.changeset/pre.json').tag" 2>/dev/null || true)
+          if [ -z "$TAG" ]; then
+            echo "Not in pre mode — latest is authoritative; nothing to do."
+            exit 0
+          fi
+          echo "Pointing the '$TAG' dist-tag at the published versions…"
+          echo '${{ steps.changesets.outputs.publishedPackages }}' \
+            | node -e 'for (const p of JSON.parse(require("fs").readFileSync(0,"utf8"))) console.log(p.name + "@" + p.version)' \
+            | while read -r spec; do
+                echo "  npm dist-tag add $spec $TAG"
+                npm dist-tag add "$spec" "$TAG"
+              done

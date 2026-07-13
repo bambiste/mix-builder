@@ -33,13 +33,10 @@ jobs:
         with:
           node-version: 22
           cache: pnpm
-          registry-url: https://npm.pkg.github.com/
-          scope: '@bambiste'
 
+      # All dependencies resolve from public npm — no registry auth needed.
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - uses: nrwl/nx-set-shas@v4
 
