@@ -1,5 +1,6 @@
 import chalk from 'chalk';
-import { existsSync, rmSync, readFileSync } from 'fs';
+import { existsSync, rmSync, readFileSync, readdirSync, statSync } from 'fs';
+import { gzipSync } from 'zlib';
 import {
   BuilderConfig,
   getBuilderConfig,
@@ -80,35 +81,17 @@ function displayProgress(progress: BuildProgress): void {
  * Display build statistics
  */
 function displayBuildStats(stats: BuildStats): void {
-  const successRate =
-    stats.entries > 0 ? Math.round((stats.success / stats.entries) * 100) : 0;
-
-  console.log(
-    chalk.cyan(`\n📊 ${stats.builder.toUpperCase()} Build Statistics:`)
-  );
-  console.log(chalk.gray(`  Total Entries: ${stats.entries}`));
-  console.log(chalk.green(`  Successful: ${stats.success}`));
-
-  if (stats.failed > 0) {
-    console.log(chalk.red(`  Failed: ${stats.failed}`));
-  }
-
-  console.log(chalk.gray(`  Success Rate: ${successRate}%`));
-  console.log(chalk.gray(`  Duration: ${formatDuration(stats.duration)}`));
-
-  if (stats.outputs.length > 0 && stats.outputs.length <= 10) {
-    console.log(chalk.gray('\n  Output Files:'));
-    stats.outputs.forEach((output) => {
-      const sizeStr = output.size ? ` (${formatSize(output.size)})` : '';
-      console.log(
-        chalk.gray(
-          `    • ${output.entry} [${
-            output.format
-          }]${sizeStr} - ${formatDuration(output.duration)}`
-        )
-      );
-    });
-  }
+  const failed = stats.failed > 0;
+  const glyph = failed ? chalk.red('✗') : chalk.green('✓');
+  const parts = [
+    chalk.bold(stats.builder),
+    chalk.gray(`${stats.entries} ${stats.entries === 1 ? 'entry' : 'entries'}`),
+    failed
+      ? chalk.red(`${stats.failed} failed`)
+      : chalk.green(`${stats.success} ok`),
+    chalk.gray(formatDuration(stats.duration)),
+  ];
+  console.log(`  ${glyph} ${parts.join(chalk.gray(' · '))}`);
 }
 
 /**
@@ -120,11 +103,77 @@ function formatSize(bytes: number): string {
   return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
 }
 
+/** Bundle files we report sizes for (skip maps, typings, and other assets). */
+const BUNDLE_RE = /\.(m?js|cjs|css)$/;
+
+interface OutputFile {
+  rel: string;
+  raw: number;
+  gzip: number;
+}
+
+/**
+ * Walk `dir` and collect every bundle file with its raw + gzip size. When `since`
+ * is given, only files written during this run (mtime >= since) are reported, so an
+ * incremental build doesn't re-list bundles left by a previous one.
+ */
+function collectBundles(dir: string, since = 0): OutputFile[] {
+  const out: OutputFile[] = [];
+  const walk = (current: string): void => {
+    for (const name of readdirSync(current)) {
+      const full = path.join(current, name);
+      const st = statSync(full);
+      if (st.isDirectory()) {
+        walk(full);
+      } else if (BUNDLE_RE.test(name) && !name.endsWith('.d.ts') && st.mtimeMs >= since) {
+        const buf = readFileSync(full);
+        out.push({
+          rel: path.relative(dir, full),
+          raw: buf.byteLength,
+          gzip: gzipSync(buf).byteLength,
+        });
+      }
+    }
+  };
+  if (existsSync(dir)) walk(dir);
+  return out.sort((a, b) => a.rel.localeCompare(b.rel));
+}
+
+/**
+ * Print an aligned table of the emitted bundles with raw + gzip sizes, plus a total.
+ */
+function renderOutputFiles(outdir: string, since = 0): void {
+  const files = collectBundles(outdir, since);
+  if (files.length === 0) return;
+
+  const nameW = Math.max(...files.map((f) => f.rel.length), 4);
+  const rawW = Math.max(...files.map((f) => formatSize(f.raw).length), 3);
+  const gzW = Math.max(...files.map((f) => formatSize(f.gzip).length), 2);
+  const rule = chalk.gray('  ' + '─'.repeat(nameW + rawW + gzW + 8));
+
+  console.log(chalk.cyan(`\n  Output`) + chalk.gray(` · ${outdir}`));
+  console.log(rule);
+  for (const f of files) {
+    const name = chalk.gray(f.rel.padEnd(nameW));
+    const raw = chalk.white(formatSize(f.raw).padStart(rawW));
+    const gz = chalk.green(formatSize(f.gzip).padStart(gzW) + ' gz');
+    console.log(`  ${name}   ${raw}   ${gz}`);
+  }
+  console.log(rule);
+  const rawTotal = files.reduce((s, f) => s + f.raw, 0);
+  const gzTotal = files.reduce((s, f) => s + f.gzip, 0);
+  console.log(
+    chalk.gray(
+      `  ${String(files.length).padStart(1)} file${files.length === 1 ? '' : 's'}`.padEnd(nameW + 2) +
+        `   ${formatSize(rawTotal).padStart(rawW)}   ${formatSize(gzTotal).padStart(gzW)} gz`
+    )
+  );
+}
+
 /**
  * Build with ESBuild
  */
 async function buildWithESBuild(config: BuilderConfig): Promise<BuildStats> {
-  console.log(chalk.cyan('\n🔨 Starting ESBuild...\n'));
   const startTime = Date.now();
 
   const esbuildConfig = getBuilderConfig(config, 'esbuild');
@@ -331,7 +380,6 @@ async function buildWithESBuild(config: BuilderConfig): Promise<BuildStats> {
  * Build with Rollup
  */
 async function buildWithRollup(config: BuilderConfig): Promise<BuildStats> {
-  console.log(chalk.cyan('\n🎲 Starting Rollup...\n'));
   const startTime = Date.now();
 
   const rollupConfig = getBuilderConfig(config, 'rollup');
@@ -433,9 +481,11 @@ export async function buildWithMixBuilder(
   const startTime = Date.now();
   const allStats: BuildStats[] = [];
 
+  console.log(chalk.bold.cyan('\n◆ mix-builder\n'));
+
   // Clean output directory if requested
   if (config.clean && config.outdir) {
-    console.log(chalk.cyan('\n🧹 Cleaning output directory...\n'));
+    console.log(chalk.gray(`  cleaning ${config.outdir}`));
     cleanOutputDirectory(config.outdir);
   }
 
@@ -475,28 +525,26 @@ export async function buildWithMixBuilder(
       displayBuildStats(rollupStats);
     }
 
-    // Display overall summary
+    // Per-file raw + gzip sizes for the bundles this run emitted.
+    if (config.outdir) renderOutputFiles(config.outdir, startTime);
+
+    // Overall summary line.
     const totalDuration = Date.now() - startTime;
-    const totalEntries = allStats.reduce((sum, s) => sum + s.entries, 0);
     const totalSuccess = allStats.reduce((sum, s) => sum + s.success, 0);
     const totalFailed = allStats.reduce((sum, s) => sum + s.failed, 0);
 
-    console.log(chalk.cyan('\n📈 Overall Build Summary:'));
-    console.log(chalk.gray(`  Total Entries: ${totalEntries}`));
-    console.log(chalk.green(`  Successful: ${totalSuccess}`));
-
     if (totalFailed > 0) {
-      console.log(chalk.red(`  Failed: ${totalFailed}`));
+      console.log(
+        chalk.red(`\n✗ ${totalFailed} failed`) +
+          chalk.gray(` · ${totalSuccess} ok · ${formatDuration(totalDuration)}\n`)
+      );
+      throw new Error(`Build completed with ${totalFailed} error(s)`);
     }
 
     console.log(
-      chalk.gray(`  Total Duration: ${formatDuration(totalDuration)}`)
+      chalk.green(`\n✓ Built ${totalSuccess} ${totalSuccess === 1 ? 'entry' : 'entries'}`) +
+        chalk.gray(` in ${formatDuration(totalDuration)}\n`)
     );
-
-    // Exit with error if any builds failed
-    if (totalFailed > 0) {
-      throw new Error(`Build completed with ${totalFailed} error(s)`);
-    }
   } catch (error) {
     throw error;
   }
