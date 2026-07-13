@@ -392,11 +392,8 @@ export async function build() {
       );
     });
 
-    // Call the build orchestrator
-    console.log(chalk.cyan('🚀 Starting build process...\n'));
+    // Call the build orchestrator (it prints its own header + summary).
     await buildWithMixBuilder(configBuilder, buildConfig);
-
-    console.log(chalk.green('\n✅ Build completed successfully!\n'));
     process.exit(0);
   } catch (error) {
     if (error instanceof Error) {
