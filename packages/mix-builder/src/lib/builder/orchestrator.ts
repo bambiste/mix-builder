@@ -1,4 +1,5 @@
 import chalk from 'chalk';
+import { emitCjsTypes } from './cjs-types.js';
 import { existsSync, rmSync, readFileSync, readdirSync, statSync } from 'fs';
 import { gzipSync } from 'zlib';
 import {
@@ -523,6 +524,13 @@ export async function buildWithMixBuilder(
       const rollupStats = await buildWithRollup(conf);
       allStats.push(rollupStats);
       displayBuildStats(rollupStats);
+    }
+
+    // After every builder, so the `.cjs` files the rewritten specifiers point at exist.
+    // From the merged config: `mixconfig` is keyed by array index rather than by builder
+    // name (see the `for...in` in cli_prepare), so its `esbuild` key is not there.
+    if (config.esbuild?.cjsTypes ?? config.cjsTypes ?? mixconfig?.esbuild?.cjsTypes) {
+      emitCjsTypes(config.outdir || 'dist', true);
     }
 
     // Per-file raw + gzip sizes for the bundles this run emitted.

@@ -11,6 +11,15 @@ export interface EsbuildBuilderConfig
   extends IEsbuilOption,
     BaseBuilderConfig<IEsbuilOption> {
   /**
+   * Write a `.d.cts` beside every `.d.ts`, for a `"type": "module"` package that also ships
+   * commonjs. Without one, a `require` consumer resolves ESM-shaped types and TypeScript
+   * reports TS1479 against a file that runs perfectly well.
+   *
+   * Off by default: it only makes sense for a package whose exports name the two formats
+   * separately.
+   */
+  cjsTypes?: boolean;
+  /**
    * Advanced file copying with glob pattern support
    */
   copyFiles?: Array<{
@@ -81,6 +90,11 @@ export const ESBUILD_PROPS_CONFIG: ArgParserConfig[] = [
     key: 'bundle',
     type: 'boolean',
     defaultValue: true,
+  },
+  {
+    key: 'cjsTypes',
+    type: 'boolean',
+    defaultValue: false,
   },
   {
     key: 'sourcemap',

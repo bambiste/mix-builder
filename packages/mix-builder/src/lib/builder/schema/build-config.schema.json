@@ -736,6 +736,11 @@
           "description": "Remove output directory before building",
           "type": "boolean",
           "default": false
+        },
+        "cjsTypes": {
+          "type": "boolean",
+          "default": false,
+          "description": "Write a .d.cts beside every .d.ts. For a \"type\": \"module\" package that also ships commonjs: without one, a require consumer resolves ESM-shaped types and TypeScript reports TS1479 against a file that runs fine."
         }
       },
       "required": [
