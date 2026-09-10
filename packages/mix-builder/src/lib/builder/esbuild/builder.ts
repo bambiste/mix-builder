@@ -245,6 +245,7 @@ async function _build(build: ReturnType<typeof init_build>) {
       builds.push(b);
     }
   }
+
   return builds;
 }
 
@@ -347,16 +348,13 @@ export function buildWithEsBuild() {
   );
   const { entries, args } = build_value;
 
-  // Resolve clean: CLI flag takes precedence, then build-config.json esbuild.clean
+  // Resolve clean: CLI flag takes precedence, then build-config.json esbuild.clean.
   let shouldClean: boolean = args.clean ?? false;
-  if (!shouldClean) {
-    try {
-      const configFile = args.buildConfigFile || 'build-config.json';
-      const raw = fs.readFileSync(configFile, 'utf-8');
-      const config = JSON.parse(raw);
-      shouldClean = config?.esbuild?.clean === true;
-    } catch {}
-  }
+  try {
+    const configFile = args.buildConfigFile || 'build-config.json';
+    const config = JSON.parse(fs.readFileSync(configFile, 'utf-8'));
+    if (!shouldClean) shouldClean = config?.esbuild?.clean === true;
+  } catch {}
 
   if (shouldClean) {
     const outdir = args.outdir || 'dist';
