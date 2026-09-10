@@ -49,3 +49,5 @@ vitest.config.*.timestamp*
 .claude/settings.local.json
 .nx/polygraph
 .nx/self-healing
+# Working notes for commit and changeset drafting — never committed.
+.devwrite/
