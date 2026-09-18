@@ -57,6 +57,41 @@ default one:
 }
 ```
 
+## Banner
+
+```jsonc
+// build-config.json
+{
+  "esbuild": {
+    "banner": "/*! {name} v{version} | (c) {year} {author} | {license} */"
+  }
+}
+```
+
+```jsonc
+// only the entry a consumer loads
+{
+  "esbuild": {
+    "banner": {
+      "js": "/*! {name} v{version} */",
+      "include": ["src/index.ts"],
+      "exclude": ["src/**/*.spec.ts"]
+    }
+  }
+}
+```
+
+A banner string applies to every entry. The object form allows selective inclusion and exclusion using globs. Tokens `{name}`, `{version}`, `{description}`, `{license}`, `{homepage}`, `{author}`, `{year}` are replaced from `package.json`; unknown tokens remain unchanged.
+
+## Minification
+
+Minification defaults to true. Setting `"minify": false` in the config, or `--minify=false`, disables it completely. When enabled, `minifySyntax`, `minifyWhitespace`, and `minifyIdentifiers` act as opt-outs. CJS output is never minified.
+
+## TypeScript
+
+esbuild strips types itself, so the esbuild path works with no TypeScript installed.  
+The Rollup TypeScript plugin is optional via `plugins.typescript.enabled` and requires a TypeScript version that exposes the compiler API. It works with TypeScript 5.9.2 but not with TypeScript 7.0.2, which only exports version information.
+
 ## Output
 
 Every build prints an aligned table of the bundles it emitted, with raw and gzip sizes:
@@ -87,6 +122,8 @@ builds don't re-report bundles from a previous pass.
 - **Multi-format** output: `esm`, `cjs`, `iife`.
 - **CDN globals** — per-entry `globalName` + `noExternal` produce self-contained
   `*.global.js` for `<script>` use on unpkg / jsdelivr.
+- **Banners** — a copyright comment with `{name}`/`{version}`/`{year}` filled from
+  `package.json`, on the entries you pick.
 - **Size reporting** — raw + gzip per file, with a total.
 - **Typings** — `--dts` emits `.d.ts` alongside the bundles.
 - **External handling** — auto-externalize deps, or `noExternal` to inline them.
