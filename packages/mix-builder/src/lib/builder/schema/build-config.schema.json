@@ -438,6 +438,42 @@
         "copy_pkg": {
           "type": "boolean",
           "default": false
+        },
+        "banner": {
+          "description": "A comment prepended to built files, for copyright and authorship. A string is the JavaScript banner for every entry. Tokens {name}, {version}, {description}, {license}, {homepage}, {author} and {year} are substituted from package.json; an unrecognised token is left as written.",
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "js": {
+                  "type": "string",
+                  "description": "Prepended to JavaScript output."
+                },
+                "css": {
+                  "type": "string",
+                  "description": "Prepended to CSS output."
+                },
+                "include": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "Entries that get the banner, as globs against the package-relative source path. Everything when omitted."
+                },
+                "exclude": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "Entries that never get it, applied after include."
+                }
+              },
+              "additionalProperties": false
+            }
+          ]
         }
       },
       "required": [
@@ -741,6 +777,42 @@
           "type": "boolean",
           "default": false,
           "description": "Write a .d.cts beside every .d.ts. For a \"type\": \"module\" package that also ships commonjs: without one, a require consumer resolves ESM-shaped types and TypeScript reports TS1479 against a file that runs fine."
+        },
+        "banner": {
+          "description": "A comment prepended to built files, for copyright and authorship. A string is the JavaScript banner for every entry. Tokens {name}, {version}, {description}, {license}, {homepage}, {author} and {year} are substituted from package.json; an unrecognised token is left as written.",
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "js": {
+                  "type": "string",
+                  "description": "Prepended to JavaScript output."
+                },
+                "css": {
+                  "type": "string",
+                  "description": "Prepended to CSS output."
+                },
+                "include": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "Entries that get the banner, as globs against the package-relative source path. Everything when omitted."
+                },
+                "exclude": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "Entries that never get it, applied after include."
+                }
+              },
+              "additionalProperties": false
+            }
+          ]
         }
       },
       "required": [
