@@ -86,6 +86,10 @@ function resolveConfig<T extends EsbuildBuilderConfig = EsbuildBuilderConfig>(
         ...Object.keys(pkg.peerDependencies || {}),
       ].flatMap((dep) => [dep, `${dep}/*`])
     : [];
+  // cjs is never minified: the format exists for readability in a debugger and for
+  // tools that parse it.
+  const minifying = format === 'cjs' ? false : minify;
+
   // Base esbuild options
   // console.log('tree shaking is', treeShaking)
   const config: BuildOptions = {
@@ -94,10 +98,13 @@ function resolveConfig<T extends EsbuildBuilderConfig = EsbuildBuilderConfig>(
     target,
     format,
     platform: format === 'cjs' ? 'node' : 'browser',
-    minify: format === 'cjs' ? false : minify,
-    minifySyntax,
-    minifyWhitespace,
-    minifyIdentifiers,
+    // Gated on `minify`, not defaulted beside it. These three carry a concrete `true`
+    // default, so on their own they kept minifying everything when `minify: false` was
+    // asked for. With minification on they still work as opt-outs.
+    minify: minifying,
+    minifySyntax: minifying && minifySyntax,
+    minifyWhitespace: minifying && minifyWhitespace,
+    minifyIdentifiers: minifying && minifyIdentifiers,
     legalComments,
     charset,
     define: {
@@ -340,6 +347,17 @@ async function buildEntry(
   return null;
 }
 
+/**
+ * @deprecated A second esbuild implementation, kept for anyone importing it directly.
+ *
+ * The CLI does not reach this: it goes through `buildWithMixBuilder` in
+ * `orchestrator.ts`, which has its own esbuild path. Two implementations of one thing
+ * is how they drift, and they already had: the `minify` bug fixed here was fixed twice,
+ * because a fix to one left the other wrong.
+ *
+ * Removing it changes the package's public surface, so it waits for a major. Until
+ * then, changes belong in both.
+ */
 export function buildWithEsBuild() {
   const opts: Partial<EsbuildBuilderConfig> = {
     defineExternals,

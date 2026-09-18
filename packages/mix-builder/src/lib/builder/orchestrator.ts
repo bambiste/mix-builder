@@ -285,6 +285,10 @@ async function buildWithESBuild(config: BuilderConfig): Promise<BuildStats> {
       // and leave internal chunks bare. Undefined when this entry gets none.
       const banner = resolveBanner(args.banner, inputFile, pkg);
 
+      // cjs is never minified: the format exists for readability in a debugger and for
+      // tools that parse it.
+      const minifying = format === 'cjs' ? false : args.minify ?? true;
+
       const buildOptions: BuildOptions = {
         entryPoints: [inputFile],
         outdir: outputDir,
@@ -295,10 +299,14 @@ async function buildWithESBuild(config: BuilderConfig): Promise<BuildStats> {
         format: format === 'esm' ? 'esm' : format,
         ...(globalName ? { globalName } : {}),
         platform: args.platform || (format === 'cjs' ? 'node' : 'browser'),
-        minify: format === 'cjs' ? false : args.minify ?? true,
-        minifySyntax: args.minifySyntax ?? true,
-        minifyWhitespace: args.minifyWhitespace ?? true,
-        minifyIdentifiers: args.minifyIdentifiers ?? true,
+        // The granular flags are gated on `minify` rather than defaulted beside it.
+        // They carry a concrete `true` default from the arg parser, so a `?? minifying`
+        // fallback never fires and esbuild kept minifying everything when `minify: false`
+        // was asked for. With minification on they still work as opt-outs.
+        minify: minifying,
+        minifySyntax: minifying && (args.minifySyntax ?? true),
+        minifyWhitespace: minifying && (args.minifyWhitespace ?? true),
+        minifyIdentifiers: minifying && (args.minifyIdentifiers ?? true),
         legalComments: args.legalComments || 'none',
         charset: args.charset || 'utf8',
         define: {
