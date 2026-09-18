@@ -105,7 +105,9 @@ export const BUILDER_PROPS_CONFIG: ArgParserConfig[] = [
   {
     key: 'minify',
     type: 'boolean',
-    defaultValue: true,
+    // No default, so the builder can pick by format: iife is loaded straight into a
+    // browser and is minified, esm and cjs go through a bundler that minifies anyway.
+    // A default here wins over that and cannot be told apart from someone asking.
   },
   {
     key: 'sourcemap',
