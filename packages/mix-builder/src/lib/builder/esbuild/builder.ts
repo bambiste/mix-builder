@@ -54,7 +54,7 @@ function resolveConfig<T extends EsbuildBuilderConfig = EsbuildBuilderConfig>(
     bundle = true,
     splitting = true,
     noExternal = false,
-    minify = true,
+    minify,
     minifySyntax = true,
     minifyWhitespace = true,
     minifyIdentifiers = true,
@@ -86,9 +86,9 @@ function resolveConfig<T extends EsbuildBuilderConfig = EsbuildBuilderConfig>(
         ...Object.keys(pkg.peerDependencies || {}),
       ].flatMap((dep) => [dep, `${dep}/*`])
     : [];
-  // cjs is never minified: the format exists for readability in a debugger and for
-  // tools that parse it.
-  const minifying = format === 'cjs' ? false : minify;
+  // Who loads the file decides: iife goes straight into a browser, esm and cjs go
+  // through a bundler that minifies anyway. An explicit `minify` still wins.
+  const minifying = format === 'cjs' ? false : minify ?? format === 'iife';
 
   // Base esbuild options
   // console.log('tree shaking is', treeShaking)
@@ -107,8 +107,12 @@ function resolveConfig<T extends EsbuildBuilderConfig = EsbuildBuilderConfig>(
     minifyIdentifiers: minifying && minifyIdentifiers,
     legalComments,
     charset,
+    // The build's own NODE_ENV first, then the config's, so a project can override it
+    // and add compile-time constants. Values substitute as written; a string needs its
+    // quotes.
     define: {
       'process.env.NODE_ENV': '"' + env + '"',
+      ...(options.define ?? {}),
     },
     external:
       noExternal && format !== 'cjs'

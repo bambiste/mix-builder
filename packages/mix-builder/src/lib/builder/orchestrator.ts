@@ -285,9 +285,12 @@ async function buildWithESBuild(config: BuilderConfig): Promise<BuildStats> {
       // and leave internal chunks bare. Undefined when this entry gets none.
       const banner = resolveBanner(args.banner, inputFile, pkg);
 
-      // cjs is never minified: the format exists for readability in a debugger and for
-      // tools that parse it.
-      const minifying = format === 'cjs' ? false : args.minify ?? true;
+      // Who loads the file decides. iife goes straight into a browser over a script
+      // tag, so nothing downstream will minify it. esm and cjs are consumed by a
+      // bundler that minifies anyway, and shipping them readable leaves the consumer's
+      // own output the same size or slightly smaller. An explicit `minify` still wins.
+      const minifying =
+        format === 'cjs' ? false : args.minify ?? format === 'iife';
 
       const buildOptions: BuildOptions = {
         entryPoints: [inputFile],
@@ -309,10 +312,14 @@ async function buildWithESBuild(config: BuilderConfig): Promise<BuildStats> {
         minifyIdentifiers: minifying && (args.minifyIdentifiers ?? true),
         legalComments: args.legalComments || 'none',
         charset: args.charset || 'utf8',
+        // The build's own NODE_ENV first, then whatever the config asked for, so a
+        // project can override it and add its own compile-time constants. Values are
+        // substituted as written, so a string needs its quotes: `"__DEV__": "false"`.
         define: {
           'process.env.NODE_ENV': `"${
             args.nodeEnv || args.env || 'production'
           }"`,
+          ...(args.define ?? {}),
         },
         // iife is meant to be dropped into a <script> tag, so bundle everything in.
         external: ((args.noExternal || isIife) && format !== 'cjs' ? [] : external) as any,
