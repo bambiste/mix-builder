@@ -1,5 +1,13 @@
 # @bambiste/mix-builder
 
+## 0.2.1
+
+### Patch Changes
+
+- 548b113: The esbuild build now runs without requiring TypeScript to be installed and works with any TypeScript version.
+
+  A fresh install previously failed before any build started, because the Rollup TypeScript plugin was loaded at import time. It is loaded only when `plugins.typescript.enabled` asks for it.
+
 ## 0.2.0
 
 ### Minor Changes
