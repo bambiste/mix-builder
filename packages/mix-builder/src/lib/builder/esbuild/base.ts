@@ -99,7 +99,10 @@ export const ESBUILD_PROPS_CONFIG: ArgParserConfig[] = [
   {
     key: 'minify',
     type: 'boolean',
-    defaultValue: true,
+    // No default. Left undefined, the builder picks by format: iife is loaded straight
+    // into a browser and is minified, esm and cjs are consumed by a bundler that will
+    // minify itself. A concrete default here would win over that and could not be
+    // distinguished from someone asking for it.
   },
   {
     key: 'minifySyntax',

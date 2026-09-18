@@ -85,7 +85,29 @@ A banner string applies to every entry. The object form allows selective inclusi
 
 ## Minification
 
-Minification defaults to true. Setting `"minify": false` in the config, or `--minify=false`, disables it completely. When enabled, `minifySyntax`, `minifyWhitespace`, and `minifyIdentifiers` act as opt-outs. CJS output is never minified.
+The default follows the format, because who loads the file decides. `iife` is loaded
+straight into a browser over a `<script>` tag, so nothing downstream will minify it and
+it is minified. `esm` and `cjs` are consumed by a bundler that minifies anyway, so they
+are left readable. `cjs` is never minified.
+
+Setting `"minify"` in the config, or `--minify`, overrides the default in either
+direction. While minifying, `minifySyntax`, `minifyWhitespace` and `minifyIdentifiers`
+act as opt-outs.
+
+## Compile-time constants
+
+`define` replaces identifiers at build time, so a production build can drop code a
+development build keeps. Values substitute as written, so a string needs its own quotes.
+`process.env.NODE_ENV` is set for you and can be overridden here.
+
+```jsonc
+// build-config.json
+{
+  "esbuild": {
+    "define": { "__DEV__": "false" }
+  }
+}
+```
 
 ## TypeScript
 

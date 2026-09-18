@@ -19,7 +19,8 @@ function resolveMinify(args: {
   minifyIdentifiers?: boolean;
   format: string;
 }): Record<string, boolean> {
-  const minifying = args.format === 'cjs' ? false : args.minify ?? true;
+  const minifying =
+    args.format === 'cjs' ? false : args.minify ?? args.format === 'iife';
   return {
     minify: minifying,
     minifySyntax: minifying && (args.minifySyntax ?? true),
@@ -48,13 +49,27 @@ describe('minify gating', () => {
     });
   });
 
-  it('minifies by default', () => {
+  it('leaves esm readable by default, since a bundler will minify it', () => {
     expect(resolveMinify({ format: 'esm' })).toEqual({
+      minify: false,
+      minifySyntax: false,
+      minifyWhitespace: false,
+      minifyIdentifiers: false,
+    });
+  });
+
+  it('minifies iife by default, since a browser loads it directly', () => {
+    expect(resolveMinify({ format: 'iife' })).toEqual({
       minify: true,
       minifySyntax: true,
       minifyWhitespace: true,
       minifyIdentifiers: true,
     });
+  });
+
+  it('an explicit setting wins over the format default, both ways', () => {
+    expect(resolveMinify({ minify: true, format: 'esm' }).minify).toBe(true);
+    expect(resolveMinify({ minify: false, format: 'iife' }).minify).toBe(false);
   });
 
   it('keeps a granular flag usable as an opt-out while minifying', () => {
@@ -95,6 +110,29 @@ describe('the two esbuild implementations agree', () => {
       );
       expect(src, `${file} must gate minifyIdentifiers on minify`).toMatch(
         /minifyIdentifiers:\s*minifying\s*&&/,
+      );
+    }
+  });
+});
+
+describe('nothing hands minify a concrete default', () => {
+  it('no arg-parser config declares a default for it', async () => {
+    // It was declared in two places, ESBUILD_PROPS_CONFIG and BASE_ARGS, and either one
+    // is enough to make `args.minify` always defined, which defeats the format fallback
+    // and cannot be told apart from someone asking for minification.
+    const { readFileSync } = await import('node:fs');
+    const { dirname, join } = await import('node:path');
+    const { fileURLToPath } = await import('node:url');
+    const here = dirname(fileURLToPath(import.meta.url));
+
+    for (const file of ['utils.ts', 'esbuild/base.ts']) {
+      const src = readFileSync(join(here, file), 'utf-8');
+      // To the end of the entry, with no length cap. A capped window silently matched
+      // nothing once a comment grew past it, and a guard that finds nothing passes.
+      const match = /key:\s*'minify',([\s\S]*?)\n\s*\},/.exec(src);
+      expect(match, `${file} must declare a minify arg config`).not.toBeNull();
+      expect(match![1], `${file} must not give minify a defaultValue`).not.toMatch(
+        /defaultValue/,
       );
     }
   });
