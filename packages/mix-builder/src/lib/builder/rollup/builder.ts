@@ -4,7 +4,6 @@ import * as commonjsPlugin from '@rollup/plugin-commonjs';
 import { nodeResolve } from '@rollup/plugin-node-resolve';
 import * as terserPlugin from '@rollup/plugin-terser';
 import * as jsonPlugin from '@rollup/plugin-json';
-import * as typescriptPlugin from '@rollup/plugin-typescript';
 import * as copyPluginModule from 'rollup-plugin-copy';
 import glob from 'fast-glob';
 
@@ -12,7 +11,6 @@ const babel = (babelPlugin as any).default || babelPlugin;
 const commonjs = (commonjsPlugin as any).default || commonjsPlugin;
 const terser = (terserPlugin as any).default || terserPlugin;
 const json = (jsonPlugin as any).default || jsonPlugin;
-const typescript = (typescriptPlugin as any).default || typescriptPlugin;
 const copyPlugin = (copyPluginModule as any).default || copyPluginModule;
 import { existsSync, mkdirSync, readFileSync } from 'fs';
 import path from 'path';
@@ -186,6 +184,47 @@ function formatResolver(value?: any): 'es' | 'cjs' | 'umd' | 'iife' {
 /**
  * Resolve Rollup configuration
  */
+/**
+ * The rollup TypeScript plugin, loaded on demand.
+ *
+ * It drives the TypeScript compiler API, so it needs a `typescript` that has one.
+ * TypeScript 7 is the Go port and exports `version` and `versionMajorMinor` and nothing
+ * else, so the plugin fails inside itself with `Cannot read properties of undefined
+ * (reading 'ES2015')`, which says nothing about the cause. This says it instead.
+ *
+ * No version range is declared anywhere: the test is whether the compiler API is there,
+ * which is the thing that actually matters and does not need updating for each release.
+ */
+async function loadRollupTypescript(): Promise<(options: unknown) => unknown> {
+  type TsApi = { version?: string; createProgram?: unknown; default?: TsApi };
+  let ts: TsApi | undefined;
+  try {
+    ts = (await import('typescript')) as unknown as TsApi;
+  } catch {
+    throw new Error(
+      'The rollup TypeScript plugin is enabled but `typescript` is not installed. ' +
+        'Install it, or drop `plugins.typescript.enabled` and let esbuild strip the ' +
+        'types, which needs no TypeScript at all.',
+    );
+  }
+
+  const api: TsApi | undefined = ts?.default ?? ts;
+  if (typeof api?.createProgram !== 'function') {
+    throw new Error(
+      `The rollup TypeScript plugin needs the TypeScript compiler API, and the ` +
+        `installed typescript@${api?.version ?? 'unknown'} does not expose one. ` +
+        'TypeScript 7 is the Go port and ships no compiler API yet. Use the esbuild ' +
+        'builder, which strips types without TypeScript, or install a TypeScript that ' +
+        'has `createProgram`.',
+    );
+  }
+
+  const mod = (await import('@rollup/plugin-typescript')) as unknown as {
+    default?: (options: unknown) => unknown;
+  };
+  return mod.default ?? (mod as unknown as (options: unknown) => unknown);
+}
+
 async function resolveConfig(
   entry: EntryConfig<RollupBuilderConfig>,
   options: RollupBuilderConfig,
@@ -259,12 +298,20 @@ async function resolveConfig(
       path.join(process.cwd(), 'tsconfig.build.json')
     );
     if (existsSync(tsConfigPath)) {
+      // Loaded here, not at module scope. `@rollup/plugin-typescript` reaches into the
+      // installed `typescript` as it is imported, so a top-level import made the whole
+      // package unusable for an esbuild build in a project that has no TypeScript, or
+      // one whose TypeScript the plugin cannot drive. This branch is the only place it
+      // is wanted, and it is opt-in.
+      //
+      // esbuild strips types itself, so the default path needs none of this.
+      const typescript = await loadRollupTypescript();
       plugins.push(
         typescript({
           tsconfig: tsConfigPath,
           incremental: false,
           ...(options.plugins?.typescript?.config || {}),
-        })
+        }) as never
       );
     }
   }
