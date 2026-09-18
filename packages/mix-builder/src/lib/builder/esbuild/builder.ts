@@ -1,4 +1,5 @@
 import { build, BuildOptions, BuildResult } from 'esbuild';
+import { resolveBanner } from './banner.js';
 import {
   existsSync,
   mkdirSync,
@@ -306,10 +307,14 @@ async function buildEntry(
   if (!existsSync(outputDir)) {
     mkdirSync(outputDir, { recursive: true });
   }
+  // Resolved per entry, so `include`/`exclude` can mark the files a consumer loads and
+  // leave internal chunks bare. Undefined when this entry gets none.
+  const banner = resolveBanner(options.banner, inputFile, pkg);
   const buildOptions = {
     ...config,
     entryPoints: [inputFile],
     outdir: outputDir,
+    ...(banner ? { banner } : {}),
   };
 
   try {
@@ -348,12 +353,19 @@ export function buildWithEsBuild() {
   );
   const { entries, args } = build_value;
 
-  // Resolve clean: CLI flag takes precedence, then build-config.json esbuild.clean.
+  // Resolve clean and banner: a CLI flag takes precedence, then build-config.json.
+  //
+  // Read here rather than merged in `flattenedInputs`, which only consumes the entry
+  // keys. Widening that merge would start honouring keys it has always ignored, and
+  // `minify` is one of them, so an existing config could quietly change what it builds.
   let shouldClean: boolean = args.clean ?? false;
   try {
     const configFile = args.buildConfigFile || 'build-config.json';
     const config = JSON.parse(fs.readFileSync(configFile, 'utf-8'));
     if (!shouldClean) shouldClean = config?.esbuild?.clean === true;
+    if (args.banner === undefined && config?.esbuild?.banner !== undefined) {
+      args.banner = config.esbuild.banner;
+    }
   } catch {}
 
   if (shouldClean) {

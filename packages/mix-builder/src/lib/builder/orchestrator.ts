@@ -21,6 +21,7 @@ import {
 import { ESBUILD_PROPS_CONFIG } from './esbuild/base.js';
 import { ROLLUP_PROPS_CONFIG } from './rollup/builder.js';
 import { build as esbuildBuild, BuildOptions, BuildResult } from 'esbuild';
+import { resolveBanner } from './esbuild/banner.js';
 import {
   resolveEsbuildExternals,
   createExternalConfig,
@@ -280,9 +281,14 @@ async function buildWithESBuild(config: BuilderConfig): Promise<BuildStats> {
         ? entry.globalName || args.globalName || deriveGlobalName(inputFile)
         : undefined;
 
+      // Resolved per entry, so `include`/`exclude` can mark the files a consumer loads
+      // and leave internal chunks bare. Undefined when this entry gets none.
+      const banner = resolveBanner(args.banner, inputFile, pkg);
+
       const buildOptions: BuildOptions = {
         entryPoints: [inputFile],
         outdir: outputDir,
+        ...(banner ? { banner } : {}),
         bundle: args.bundle ?? true,
         sourcemap: args.sourcemap ?? false,
         target: args.target || 'es2021',

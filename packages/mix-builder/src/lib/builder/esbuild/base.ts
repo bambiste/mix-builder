@@ -1,11 +1,12 @@
 import type { BuildOptions as EsbuildOptions } from 'esbuild';
+import type { BannerOption } from './banner.js';
 import { type ArgParserConfig } from '../../arguments/index.js';
 import { BaseBuilderConfig, formatResolver } from '../base.js';
 import { BUILDER_PROPS_CONFIG } from '../utils.js';
 
 type IEsbuilOption = Omit<
   EsbuildOptions,
-  'entryPoints' | 'external' | 'format'
+  'entryPoints' | 'external' | 'format' | 'banner'
 >;
 export interface EsbuildBuilderConfig
   extends IEsbuilOption,
@@ -52,6 +53,35 @@ export interface EsbuildBuilderConfig
    * Legacy copy_pkg option
    */
   copy_pkg?: boolean;
+
+  /**
+   * A comment prepended to built files, for copyright and authorship.
+   *
+   * A string is the JavaScript banner for every entry. The object form adds a `css`
+   * banner and `include`/`exclude` globs, so an entry a consumer loads can be marked
+   * while internal chunks are left alone.
+   *
+   * `{name}`, `{version}`, `{description}`, `{license}`, `{homepage}`, `{author}` and
+   * `{year}` are substituted from package.json, so the text does not go stale at a
+   * release. An unrecognised token is left as written, because a visible typo is better
+   * than a silently empty line.
+   *
+   * @example
+   * ```json
+   * { "banner": "/*! {name} v{version} | (c) {year} {author} | {license} *\/" }
+   * ```
+   *
+   * @example Only the public entries:
+   * ```json
+   * {
+   *   "banner": {
+   *     "js": "/*! {name} v{version} *\/",
+   *     "include": ["src/index.ts", "src/cdn/*.ts"]
+   *   }
+   * }
+   * ```
+   */
+  banner?: BannerOption;
 }
 /**
  * Default configuration for esbuild arguments for cli
