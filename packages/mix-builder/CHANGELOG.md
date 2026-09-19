@@ -1,5 +1,11 @@
 # @bambiste/mix-builder
 
+## 0.3.0
+
+### Minor Changes
+
+- 8c9dca8: Minification now follows the output format by default, and `define` lets a config set its own compile-time constants. If you relied on minified ESM or CJS output, set `minify: true` to retain minification.
+
 ## 0.2.1
 
 ### Patch Changes
