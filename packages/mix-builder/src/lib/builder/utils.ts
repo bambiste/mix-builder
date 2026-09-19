@@ -1,4 +1,5 @@
 import { ArgParserConfig } from '../arguments/index.js';
+import type { TscConfig } from './tsc.js';
 import { readFileSync, existsSync } from 'fs';
 import { resolveFrom } from '../utils/index.js';
 import { cwd } from 'process';
@@ -184,6 +185,8 @@ export interface BuilderConfig {
   target?: string | string[];
   watch?: boolean;
   clean?: boolean;
+  /** Run tsc before the bundlers, for the declarations `exports.types` points at. */
+  tsc?: TscConfig;
   rollup?: any;
   esbuild?: any;
   [key: string]: any;

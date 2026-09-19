@@ -109,6 +109,32 @@ development build keeps. Values substitute as written, so a string needs its own
 }
 ```
 
+## tsc
+
+The `tsc` block tells Mix Builder how to invoke the TypeScript compiler. It runs the compiler that the package depends on.
+
+| Key                | Default               | Description |
+|--------------------|-----------------------|-------------|
+| `project`          | `tsconfig.json`       | Path to the TypeScript configuration file. |
+| `enabled`          | `true`                | Whether the compiler step is active. |
+| `emitDeclarationOnly` | `false`           | Emit only declaration files when true. |
+| `failOnError`      | `true`                | Stop the build if the compiler reports errors. |
+| `args`             | *(empty)*             | Additional command-line arguments passed to `tsc`. |
+
+```json
+{
+  "tsc": {
+    "project": "tsconfig.json",
+    "enabled": true,
+    "emitDeclarationOnly": false,
+    "failOnError": true,
+    "args": []
+  }
+}
+```
+
+The `clean` step runs before `tsc`, and any bundler steps run after it.
+
 ## TypeScript
 
 esbuild strips types itself, so the esbuild path works with no TypeScript installed.  
