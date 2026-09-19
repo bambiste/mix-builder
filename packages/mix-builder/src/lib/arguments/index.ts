@@ -281,6 +281,41 @@ const handleArgValue = (arg: string, arg_config: ArgParserConfig) => {
   return undefined;
 };
 
+/**
+ * Which keys on a parsed-args object came from the command line.
+ *
+ * Kept under a symbol so it travels with the object without showing up in
+ * `Object.keys`, a spread, or `JSON.stringify`. Everything downstream treats parsed args
+ * as a plain config object, and a visible extra key would end up merged into one.
+ */
+export const PROVIDED_KEYS = Symbol('mix-builder.providedKeys');
+
+/**
+ * Read the provenance recorded by `parseProcessArgs`.
+ *
+ * An object that never went through the parser reports nothing provided, which is the
+ * safe answer: it means callers fall back to treating every value as a default.
+ */
+export function providedKeys(opts: unknown): Set<string> {
+  const found = (opts as any)?.[PROVIDED_KEYS];
+  return found instanceof Set ? (found as Set<string>) : new Set<string>();
+}
+
+/**
+ * Just the entries a caller actually asked for on the command line.
+ *
+ * This is what lets a config file win over a default without losing to it. Parsed args
+ * carry a value for every key that declares a `defaultValue`, so merging the whole
+ * object over a config file overrides keys nobody mentioned; merging only these does
+ * not.
+ */
+export function explicitArgs<T extends object>(opts: T): Partial<T> {
+  const provided = providedKeys(opts);
+  const out: any = {};
+  for (const key of provided) out[key] = (opts as any)[key];
+  return out as Partial<T>;
+}
+
 export function parseProcessArgs<T extends any = {}>(
   argv: string[],
   arg_configs: ArgParserConfig[],
@@ -289,6 +324,8 @@ export function parseProcessArgs<T extends any = {}>(
   const opts: any = (
     typeof options === 'object' && options ? { ...options } : {}
   ) as T;
+  // Anything handed in via `options` was chosen by a caller, not defaulted here.
+  const provided = new Set<string>(Object.keys(opts));
   // console.log('arguments', argv);
   for (const arg of argv.slice(2)) {
     const arg_config = arg_configs.find((arg_config) =>
@@ -297,11 +334,17 @@ export function parseProcessArgs<T extends any = {}>(
     if (!arg_config) continue;
     const value = handleArgValue(arg, arg_config);
     opts[arg_config.key] = value;
+    provided.add(arg_config.key);
   }
   for (const arg_config of arg_configs) {
     if (typeof opts[arg_config.key] === 'undefined') {
       opts[arg_config.key] = getDefaultValue(arg_config);
     }
   }
+  Object.defineProperty(opts, PROVIDED_KEYS, {
+    value: provided,
+    enumerable: false,
+    configurable: true,
+  });
   return opts as T;
 }

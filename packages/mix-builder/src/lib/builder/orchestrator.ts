@@ -55,6 +55,27 @@ interface BuildStats {
 }
 
 /**
+ * Whether this build was asked to clean, wherever it was asked.
+ *
+ * A builder block is where the rest of that builder's settings live, so it is where
+ * people put `clean` too. Reading only the top level meant the flag was silently inert
+ * for those configs.
+ */
+export function resolveClean(config: BuilderConfig): boolean {
+  return !!(config.clean ?? config.esbuild?.clean ?? config.rollup?.clean);
+}
+
+/**
+ * The directory this build writes to, from wherever it is declared, defaulting to the
+ * same `dist` the builders default to.
+ */
+export function resolveOutdir(config: BuilderConfig): string {
+  return (
+    config.outdir ?? config.esbuild?.outdir ?? config.rollup?.outdir ?? 'dist'
+  );
+}
+
+/**
  * Clean output directory
  */
 function cleanOutputDirectory(outdir: string): void {
@@ -506,10 +527,14 @@ export async function buildWithMixBuilder(
 
   console.log(chalk.bold.cyan('\n◆ mix-builder\n'));
 
-  // Clean output directory if requested
-  if (config.clean && config.outdir) {
-    console.log(chalk.gray(`  cleaning ${config.outdir}`));
-    cleanOutputDirectory(config.outdir);
+  // Clean output directory if requested.
+  //
+  // Both halves of this used to be read from the top level only, and almost every config
+  // declares them inside its builder block instead. `esbuild.clean: true` was accepted,
+  // validated by the schema, and did nothing. An absent `outdir` also read as "nowhere to
+  // clean" rather than as the default it is everywhere else in the build.
+  if (resolveClean(config)) {
+    cleanOutputDirectory(resolveOutdir(config));
   }
 
   // After the clean and before any bundler. Both halves of that matter: clean would

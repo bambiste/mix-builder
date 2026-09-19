@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import inquirer, { Question, DistinctQuestion } from 'inquirer';
-import { parseProcessArgs } from '../arguments/index.js';
+import { explicitArgs, parseProcessArgs } from '../arguments/index.js';
 import {
   BUILDER_PROPS_CONFIG,
   BuilderConfig,
@@ -287,36 +287,36 @@ async function gatherBuildOptions(
     process.exit(0);
   }
 
-  // Merge interactive answers with CLI arguments and file config
+  // Lowest to highest: the parser's defaults, then the config file, then what was
+  // chosen at the prompt, then a flag actually typed on the command line.
+  //
+  // The order used to end in the whole `cliArgs` object, which carries a value for every
+  // key that declares a `defaultValue`. That made a default indistinguishable from a
+  // choice, and it silently outranked the config file: `clean: true` in
+  // build-config.json lost to the parser's `clean: false` and never ran.
   const buildConfig: BuilderConfig = merge(
+    cliArgs,
     fileConfig || {},
     {
-      builder: cliArgs.builder || answers.builder,
-      formats: cliArgs.formats || answers.formats,
-      platform: cliArgs.platform || answers.platform,
-      nodeEnv: cliArgs.nodeEnv || answers.nodeEnv,
-      minify: cliArgs.minify ?? answers.minify,
-      sourcemap: cliArgs.sourcemap ?? answers.sourcemap,
-      bundle: cliArgs.bundle ?? answers.bundle,
-      splitting: cliArgs.splitting ?? answers.splitting,
-      treeShaking: cliArgs.treeShaking ?? answers.treeShaking,
-      dts: cliArgs.dts ?? answers.dts,
-      reactExternal: cliArgs.reactExternal ?? answers.reactExternal,
-      litExternal: cliArgs.litExternal ?? answers.litExternal,
-      libExternal: cliArgs.libExternal ?? answers.libExternal,
-      copy_pkg: cliArgs.copy_pkg ?? answers.copy_pkg,
-      watch: cliArgs.watch ?? answers.watch,
-      clean: cliArgs.clean ?? answers.clean,
-      debug: cliArgs.debug ?? answers.debug,
-      outdir: cliArgs.outdir,
-      rootDIr: cliArgs.rootDir,
-      baseDir: cliArgs.baseDir,
-      externals: cliArgs.externals,
-      extensions: cliArgs.extensions,
-      target: cliArgs.target,
-      use: cliArgs.use,
+      builder: answers.builder,
+      formats: answers.formats,
+      platform: answers.platform,
+      nodeEnv: answers.nodeEnv,
+      minify: answers.minify,
+      sourcemap: answers.sourcemap,
+      bundle: answers.bundle,
+      splitting: answers.splitting,
+      treeShaking: answers.treeShaking,
+      dts: answers.dts,
+      reactExternal: answers.reactExternal,
+      litExternal: answers.litExternal,
+      libExternal: answers.libExternal,
+      copy_pkg: answers.copy_pkg,
+      watch: answers.watch,
+      clean: answers.clean,
+      debug: answers.debug,
     },
-    cliArgs
+    explicitArgs(cliArgs)
   );
 
   return buildConfig;
@@ -345,11 +345,17 @@ export async function build() {
     if ((hasConfigFile && isCI) || (hasConfigFile && hasMinimalArgs)) {
       // Non-interactive mode - use config file + CLI args
       console.log(chalk.cyan('\n🤖 Running in non-interactive mode\n'));
+      // Same precedence as the interactive path: defaults, then the file, then the
+      // flags that were actually typed.
       for (const builder in ['rollup', 'esbuild']) {
-        const conf = merge(((fileConfig || {}) as any)[builder] || {}, cliArgs);
+        const conf = merge(
+          cliArgs,
+          ((fileConfig || {}) as any)[builder] || {},
+          explicitArgs(cliArgs)
+        );
         (buildConfig as any)[builder] = conf;
       }
-      configBuilder = merge(fileConfig || {}, cliArgs);
+      configBuilder = merge(cliArgs, fileConfig || {}, explicitArgs(cliArgs));
     } else if (!hasConfigFile && hasMinimalArgs && isCI) {
       // CI mode without config file but with args
       console.log(chalk.cyan('\n🤖 Running in CI mode with CLI arguments\n'));

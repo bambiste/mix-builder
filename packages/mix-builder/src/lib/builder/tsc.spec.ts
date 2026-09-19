@@ -178,7 +178,9 @@ describe('the orchestrator sequences tsc between clean and the bundlers', () => 
       join(dirname(fileURLToPath(import.meta.url)), 'orchestrator.ts'),
       'utf-8',
     );
-    const clean = src.indexOf('cleanOutputDirectory(config.outdir)');
+    // Matched on the call, not on what it is handed, so renaming the argument does not
+    // quietly turn this guard into one that finds nothing.
+    const clean = src.search(/cleanOutputDirectory\([^)]*\);/);
     const tsc = src.indexOf('runTsc(config.tsc)');
     const esbuild = src.indexOf('await buildWithESBuild(');
     expect(clean, 'clean call not found').toBeGreaterThan(-1);
