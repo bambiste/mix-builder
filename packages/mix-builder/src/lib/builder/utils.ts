@@ -147,9 +147,12 @@ export const BUILDER_PROPS_CONFIG: ArgParserConfig[] = [
     defaultValue: false,
   },
   {
+    // No defaultValue, deliberately, same as `minify`. A concrete `false` here is
+    // indistinguishable from someone asking not to clean, and it masked the value a
+    // config file declared inside its builder block. Absent means absent, and the
+    // orchestrator reads it as "no".
     key: 'clean',
     type: 'boolean',
-    defaultValue: false,
   },
 ];
 
