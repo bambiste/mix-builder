@@ -19,27 +19,33 @@ const CONFIGS = [
   { key: 'outdir', type: 'string' as const, defaultValue: 'dist' },
 ];
 
+interface Parsed {
+  dts?: boolean;
+  outdir?: string;
+}
+
 const argv = (...flags: string[]) => ['node', 'mix-builder', ...flags];
+const parse = (...flags: string[]) => parseProcessArgs<Parsed>(argv(...flags), CONFIGS);
 
 describe('parseProcessArgs records what was actually passed', () => {
   it('reports nothing provided when only defaults filled in', () => {
-    const args = parseProcessArgs(argv(), CONFIGS);
+    const args = parse();
     expect(args.dts).toBe(false);
     expect(providedKeys(args).has('dts')).toBe(false);
   });
 
   it('reports a flag that was passed', () => {
-    const args = parseProcessArgs(argv('--dts'), CONFIGS);
+    const args = parse('--dts');
     expect(providedKeys(args).has('dts')).toBe(true);
   });
 
   it('counts values handed in by a caller as provided', () => {
-    const args = parseProcessArgs(argv(), CONFIGS, { outdir: 'build' } as any);
+    const args = parseProcessArgs<Parsed>(argv(), CONFIGS, { outdir: 'build' });
     expect(providedKeys(args).has('outdir')).toBe(true);
   });
 
   it('keeps provenance off the object itself, so a merge cannot pick it up', () => {
-    const args = parseProcessArgs(argv('--dts'), CONFIGS);
+    const args = parse('--dts');
     expect(Object.keys(args)).not.toContain('providedKeys');
     expect(JSON.parse(JSON.stringify(args))).toEqual({ dts: true, outdir: 'dist' });
     expect({ ...(args as object) }).not.toHaveProperty('providedKeys');
@@ -48,11 +54,11 @@ describe('parseProcessArgs records what was actually passed', () => {
 
 describe('explicitArgs', () => {
   it('is empty when everything was defaulted', () => {
-    expect(explicitArgs(parseProcessArgs(argv(), CONFIGS))).toEqual({});
+    expect(explicitArgs(parse())).toEqual({});
   });
 
   it('carries only the typed flags', () => {
-    expect(explicitArgs(parseProcessArgs(argv('--dts'), CONFIGS))).toEqual({
+    expect(explicitArgs(parse('--dts'))).toEqual({
       dts: true,
     });
   });
@@ -67,17 +73,17 @@ describe('the resulting precedence', () => {
     merge(args, file, explicitArgs(args));
 
   it('lets the config file beat a default', () => {
-    const args = parseProcessArgs(argv(), CONFIGS);
+    const args = parse();
     expect(mergeLikeCli(args, { dts: true }).dts).toBe(true);
   });
 
   it('lets a typed flag beat the config file', () => {
-    const args = parseProcessArgs(argv('--dts=false'), CONFIGS);
+    const args = parse('--dts=false');
     expect(mergeLikeCli(args, { dts: true }).dts).toBe(false);
   });
 
   it('falls back to the default when neither says anything', () => {
-    const args = parseProcessArgs(argv(), CONFIGS);
+    const args = parse();
     expect(mergeLikeCli(args, {}).dts).toBe(false);
   });
 });
