@@ -22,6 +22,7 @@ import { ESBUILD_PROPS_CONFIG } from './esbuild/base.js';
 import { ROLLUP_PROPS_CONFIG } from './rollup/builder.js';
 import { build as esbuildBuild, BuildOptions, BuildResult } from 'esbuild';
 import { resolveBanner } from './esbuild/banner.js';
+import { runTsc, tscApplies } from './tsc.js';
 import {
   resolveEsbuildExternals,
   createExternalConfig,
@@ -509,6 +510,14 @@ export async function buildWithMixBuilder(
   if (config.clean && config.outdir) {
     console.log(chalk.gray(`  cleaning ${config.outdir}`));
     cleanOutputDirectory(config.outdir);
+  }
+
+  // After the clean and before any bundler. Both halves of that matter: clean would
+  // delete the declarations tsc writes, and the bundlers' output has nothing to do with
+  // them, so tsc goes in between.
+  if (tscApplies(config.tsc)) {
+    const tsc = runTsc(config.tsc);
+    if (tsc.ran) console.log(chalk.gray(`  ${tsc.command}`));
   }
 
   // Determine which builders to run

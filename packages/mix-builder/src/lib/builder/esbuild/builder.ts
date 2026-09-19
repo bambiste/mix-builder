@@ -97,7 +97,10 @@ function resolveConfig<T extends EsbuildBuilderConfig = EsbuildBuilderConfig>(
     sourcemap, // smaller bundle
     target,
     format,
-    platform: format === 'cjs' ? 'node' : 'browser',
+    // The destructured default already decides by format. Recomputing it here ignored an
+    // explicit `platform`, and the symptom was a node package failing to resolve
+    // `node:fs` in its esm output, because `browser` does not treat builtins as external.
+    platform,
     // Gated on `minify`, not defaulted beside it. These three carry a concrete `true`
     // default, so on their own they kept minifying everything when `minify: false` was
     // asked for. With minification on they still work as opt-outs.
