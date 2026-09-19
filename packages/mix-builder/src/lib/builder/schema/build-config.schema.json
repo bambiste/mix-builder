@@ -11,6 +11,40 @@
     "esbuild": {
       "$ref": "#/$defs/esbuildBuilder"
     },
+    "tsc": {
+      "type": "object",
+      "description": "Run tsc before the bundlers, for the declarations exports.types points at. Sequenced after clean, which would otherwise delete them.",
+      "additionalProperties": false,
+      "properties": {
+        "project": {
+          "type": "string",
+          "description": "The tsconfig to build, relative to the package.",
+          "default": "tsconfig.json"
+        },
+        "enabled": {
+          "type": "boolean",
+          "description": "Set false to declare the step and skip it.",
+          "default": true
+        },
+        "emitDeclarationOnly": {
+          "type": "boolean",
+          "description": "Emit only declarations, leaving the JS to the bundlers.",
+          "default": false
+        },
+        "failOnError": {
+          "type": "boolean",
+          "description": "Fail the build when tsc reports errors.",
+          "default": true
+        },
+        "args": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Extra flags, passed through as written."
+        }
+      }
+    },
     "builder": {
       "description": "Builder to use",
       "type": "string",
