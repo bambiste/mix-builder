@@ -1,5 +1,12 @@
 # @bambiste/mix-builder
 
+## 0.4.0
+
+### Minor Changes
+
+- 325d092: `build-config.json` now overrides parser defaults, with precedence parser defaults → config file → command-line flags, and `clean` is read from inside the esbuild or rollup block (no default) while `outdir` falls back to `dist` there. If a config file sets one of these options, it will now be applied, so adjust any code that assumed the option would be ignored.
+- f81c347: `build-config.json` now supports an optional `tsc` block to run the TypeScript compiler during the build, with configurable project, enabled, emitDeclarationOnly, failOnError, and args options, and the build sequence runs clean, then tsc, then the bundlers, while the explicit esbuild `platform` setting is no longer overwritten.
+
 ## 0.3.0
 
 ### Minor Changes
