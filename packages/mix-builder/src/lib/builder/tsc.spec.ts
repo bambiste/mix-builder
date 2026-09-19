@@ -174,13 +174,17 @@ describe('the orchestrator sequences tsc between clean and the bundlers', () => 
     const { readFileSync } = await import('node:fs');
     const { dirname, join } = await import('node:path');
     const { fileURLToPath } = await import('node:url');
-    const src = readFileSync(
+    const whole = readFileSync(
       join(dirname(fileURLToPath(import.meta.url)), 'orchestrator.ts'),
       'utf-8',
     );
-    // Matched on the call, not on what it is handed, so renaming the argument does not
-    // quietly turn this guard into one that finds nothing.
-    const clean = src.search(/cleanOutputDirectory\([^)]*\);/);
+    // Only the orchestrator's own body. Searching the whole file found the
+    // `cleanOutputDirectory` *declaration* near the top, which sits before everything
+    // and made the ordering comparison below always true.
+    const start = whole.indexOf('export async function buildWithMixBuilder');
+    expect(start, 'buildWithMixBuilder not found').toBeGreaterThan(-1);
+    const src = whole.slice(start);
+    const clean = src.indexOf('cleanOutputDirectory(');
     const tsc = src.indexOf('runTsc(config.tsc)');
     const esbuild = src.indexOf('await buildWithESBuild(');
     expect(clean, 'clean call not found').toBeGreaterThan(-1);
