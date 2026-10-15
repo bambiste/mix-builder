@@ -1,5 +1,11 @@
 # @bambiste/mix-builder
 
+## 0.4.1
+
+### Patch Changes
+
+- 154ce26: `@rollup/plugin-terser` now uses version ^1.0.0, pulling in `serialize-javascript` ^7 which removes the vulnerability.
+
 ## 0.4.0
 
 ### Minor Changes
