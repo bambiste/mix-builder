@@ -1,0 +1,9 @@
+{
+  "mode": "pre",
+  "tag": "next",
+  "initialVersions": {
+    "@bambiste/mix-builder": "0.4.2",
+    "@bambiste/mix-env": "0.1.0"
+  },
+  "changesets": []
+}
