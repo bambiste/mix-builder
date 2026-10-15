@@ -4,8 +4,8 @@ name: Release
 # - If there are pending changesets  → opens/updates a "Version Packages" PR
 # - If the "Version Packages" PR was just merged → builds & publishes to public npm
 # On `next`, changesets is in prerelease mode (.changeset/pre.json, tag `next`), so
-# versions are `-next.X`. `changeset publish` puts them on npm's `latest` tag; the
-# "Advance prerelease dist-tag" step then points the `next` dist-tag at them.
+# versions are `-next.X` on the `next` dist-tag. Before promoting `next` to `main`,
+# run `pnpm changeset pre exit` on `next` so `main` releases a stable version.
 on:
   push:
     branches: [main, next]
@@ -71,9 +71,9 @@ jobs:
           # Provenance: enable ONLY after the repo is public (hard-fails on private):
           # NPM_CONFIG_PROVENANCE: true
 
-      # `changeset publish` puts prerelease versions on npm's `latest` tag but never
-      # advances the prerelease dist-tag (`next`). Point that tag at each freshly
-      # published version so `@bambiste/x@next` resolves to the release we just cut.
+      # Point the prerelease dist-tag (`next`) at each freshly published version so
+      # `@bambiste/x@next` resolves to the release we just cut, and keep `latest` on
+      # a stable version (npm forces `latest` on a package's first publish).
       # No-op on stable (main), where there's no pre.json and `latest` is authoritative.
       - name: Advance prerelease dist-tag
         if: steps.changesets.outputs.published == 'true'
@@ -89,4 +89,15 @@ jobs:
             | while read -r spec; do
                 echo "  npm dist-tag add $spec $TAG"
                 npm dist-tag add "$spec" "$TAG"
+                # A prerelease must never be `latest`; point it back at the newest stable.
+                name="${spec%@*}"
+                latest=$(npm view "$name" dist-tags.latest)
+                case "$latest" in *-*)
+                  stable=$(npm view "$name" versions --json \
+                    | node -e 'const v=JSON.parse(require("fs").readFileSync(0,"utf8")).filter(x=>!x.includes("-"));console.log(v[v.length-1]||"")')
+                  if [ -n "$stable" ]; then
+                    echo "  npm dist-tag add $name@$stable latest"
+                    npm dist-tag add "$name@$stable" latest
+                  fi
+                esac
               done
