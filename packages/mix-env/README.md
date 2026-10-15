@@ -4,7 +4,7 @@
 
 # @bambiste/mix-env
 
-**Sync `.env` files to and from GitHub Actions secrets across a monorepo, push local env files up as secrets, and materialize them back into files locally, in CI, or on a VPS.**
+**Sync `.env` files to and from GitHub Actions secrets across a monorepo: push local env files up as secrets, and materialize them back into files locally, in CI, or on a VPS.**
 
 ![License: MIT](https://img.shields.io/badge/License-MIT-22c55e.svg)
 ![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178c6?logo=typescript&logoColor=white)
@@ -22,7 +22,7 @@
 - **push** (local, uses `gh`): find files → upload as secrets.
 - **pull** (CI / VPS): read those secrets from the environment → write the files back (mode `600`).
 
-> GitHub secrets are write-only, you can't read their values back via the API. So `pull` reads from `process.env`, which CI populates from the secrets (and which you forward to a VPS over SSH).
+> GitHub secrets are write-only: you can't read their values back via the API. So `pull` reads from `process.env`, which CI populates from the secrets (and which you forward to a VPS over SSH).
 
 ## Install
 
