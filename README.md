@@ -2,13 +2,11 @@
 
 <a alt="Nx logo" href="https://nx.dev" target="_blank" rel="noreferrer"><img src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-logo.png" width="45"></a>
 
-✨ A repository showcasing key [Nx](https://nx.dev) features for TypeScript monorepos ✨
-## Finish your Nx platform setup
+A TypeScript monorepo built with [Nx](https://nx.dev).
 
-🚀 [Finish setting up your workspace](https://nx.dev/ci/intro/why-nx-cloud) to get faster builds with remote caching, distributed task execution, and self-healing CI. [Learn more about Nx Cloud](https://nx.dev/ci/intro/why-nx-cloud).
-## 📦 Project Overview
+## Project Overview
 
-This repository demonstrates a production-ready TypeScript monorepo with:
+This repository is a TypeScript monorepo with:
 
 - **3 Publishable Packages** - Ready for NPM publishing
 
@@ -19,7 +17,7 @@ This repository demonstrates a production-ready TypeScript monorepo with:
 - **1 Internal Library**
   - `@org/utils` - Shared utilities (private, not published)
 
-## 🚀 Quick Start
+## Quick Start
 
 ```bash
 # Clone the repository
@@ -47,9 +45,9 @@ npx nx graph
 
 ## ⭐ Featured Nx Capabilities
 
-This repository showcases several powerful Nx features:
+This repository uses these Nx features:
 
-### 1. 🔒 Module Boundaries
+### 1. Module Boundaries
 
 Enforces architectural constraints using tags. Each package has specific dependencies it can use:
 
@@ -70,7 +68,7 @@ npx nx show project strings --web
 
 [Learn more about module boundaries →](https://nx.dev/features/enforce-module-boundaries)
 
-### 2. 🛠️ Custom Run Commands
+### 2. Custom Run Commands
 
 Packages can define custom commands beyond standard build/test/lint:
 
@@ -84,7 +82,7 @@ npx nx show project strings
 
 [Learn more about custom run commands →](https://nx.dev/concepts/executors-and-configurations)
 
-### 3. 🔧 Self-Healing CI
+### 3. Self-Healing CI
 
 The CI pipeline includes `nx fix-ci` which automatically identifies and suggests fixes for common issues. To test it, you can make a change to `async-retry.spec.ts` so that it fails, and create a PR.
 
@@ -98,7 +96,7 @@ npx nx fix-ci
 
 [Learn more about self-healing CI →](https://nx.dev/ci/features/self-healing-ci)
 
-### 4. 📦 Package Publishing
+### 4. Package Publishing
 
 Manage releases and publishing with Nx Release:
 
@@ -115,7 +113,7 @@ npx nx release publish --projects=strings,colors
 
 [Learn more about Nx Release →](https://nx.dev/features/manage-releases)
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 ├── packages/
@@ -128,7 +126,7 @@ npx nx release publish --projects=strings,colors
 └── eslint.config.mjs - ESLint with module boundary rules
 ```
 
-## 🏷️ Understanding Tags
+## Understanding Tags
 
 This repository uses tags to enforce module boundaries:
 
@@ -141,7 +139,7 @@ This repository uses tags to enforce module boundaries:
 
 The ESLint configuration enforces these boundaries, preventing circular dependencies and maintaining clean architecture.
 
-## 🧪 Testing Module Boundaries
+## Testing Module Boundaries
 
 To see module boundary enforcement in action:
 
@@ -149,7 +147,7 @@ To see module boundary enforcement in action:
 2. Run `npx nx lint strings`
 3. You'll see an error about violating module boundaries
 
-## 📚 Useful Commands
+## Useful Commands
 
 ```bash
 # Project exploration
@@ -185,7 +183,7 @@ Nx Cloud ensures a [fast and scalable CI](https://nx.dev/ci/intro/why-nx-cloud?u
 - [Automated e2e test splitting](https://nx.dev/ci/features/split-e2e-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
 - [Task flakiness detection and rerunning](https://nx.dev/ci/features/flaky-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
 
-## 🔗 Learn More
+## Learn More
 
 - [Nx Documentation](https://nx.dev)
 - [Module Boundaries](https://nx.dev/features/enforce-module-boundaries)
@@ -194,7 +192,7 @@ Nx Cloud ensures a [fast and scalable CI](https://nx.dev/ci/intro/why-nx-cloud?u
 - [Releasing Packages](https://nx.dev/features/manage-releases)
 - [Nx Cloud](https://nx.dev/ci/intro/why-nx-cloud)
 
-## 💬 Community
+## Community
 
 Join the Nx community:
 

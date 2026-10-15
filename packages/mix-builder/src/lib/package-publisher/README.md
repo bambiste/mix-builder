@@ -1,19 +1,19 @@
 # NPM Package Publisher
 
-Robust, type-safe package publisher for monorepo workspaces with version management, error recovery, and progress tracking.
+Type-safe package publisher for monorepo workspaces with version management, error recovery, and progress tracking.
 
 ## Features
 
-- ✅ **Type-Safe Configuration** - Full TypeScript support with JSON schema validation
-- 🔄 **Error Recovery** - Automatically saves progress and resumes from interruptions
-- 📊 **Progress Tracking** - Real-time progress bars with time estimates
-- 🔍 **Version Management** - Automatic semver versioning with history tracking
-- 🏷️ **Tag Support** - Publish to different NPM tags (latest, beta, next, etc.)
-- 🌐 **Custom Registry** - Support for private registries (GitHub, Google Artifact Registry, etc.)
-- 🎯 **Selective Publishing** - Choose which packages to publish
-- 🛡️ **Dependency Management** - Automatically updates workspace dependencies
-- 🚀 **Batch Operations** - Global and per-package builds
-- 🔒 **Dry Run Mode** - Test publishing without actually publishing
+- **Type-Safe Configuration** - Full TypeScript support with JSON schema validation
+- **Error Recovery** - Automatically saves progress and resumes from interruptions
+- **Progress Tracking** - Real-time progress bars with time estimates
+- **Version Management** - Automatic semver versioning with history tracking
+- **Tag Support** - Publish to different NPM tags (latest, beta, next, etc.)
+- **Custom Registry** - Support for private registries (GitHub, Google Artifact Registry, etc.)
+- **Selective Publishing** - Choose which packages to publish
+- **Dependency Management** - Automatically updates workspace dependencies
+- **Batch Operations** - Global and per-package builds
+- **Dry Run Mode** - Test publishing without actually publishing
 
 ## Installation
 

@@ -1,7 +1,7 @@
 {
   "name": "@bambiste/mix-env",
   "version": "0.1.0",
-  "description": "Sync .env files to/from GitHub Actions secrets across a monorepo — push local env files up as secrets, and materialize them back into files (locally, in CI, or on a VPS).",
+  "description": "Sync .env files to/from GitHub Actions secrets across a monorepo, push local env files up as secrets, and materialize them back into files (locally, in CI, or on a VPS).",
   "private": false,
   "publishConfig": {
     "registry": "https://registry.npmjs.org/",

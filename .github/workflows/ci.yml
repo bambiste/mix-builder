@@ -34,7 +34,7 @@ jobs:
           node-version: 22
           cache: pnpm
 
-      # All dependencies resolve from public npm — no registry auth needed.
+      # All dependencies resolve from public npm, no registry auth needed.
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 

@@ -1,8 +1,8 @@
 # Mix Builder - Advanced Build System
 
-A powerful, flexible build system that seamlessly integrates both Rollup and ESBuild in a single unified process, with support for interactive CLI prompts, configuration files, and comprehensive build orchestration.
+A build system that integrates both Rollup and ESBuild in a single unified process, with support for interactive CLI prompts, configuration files, and comprehensive build orchestration.
 
-## 📋 Table of Contents
+## Table of Contents
 
 - [Features](#features)
 - [Installation](#installation)
@@ -13,21 +13,21 @@ A powerful, flexible build system that seamlessly integrates both Rollup and ESB
 - [Examples](#examples)
 - [Advanced Features](#advanced-features)
 
-## ✨ Features
+## Features
 
-- 🔄 **Dual Builder Support**: Use Rollup, ESBuild, or both in the same build process
-- 💬 **Interactive CLI**: User-friendly prompts with Inquirer.js for configuration
-- 📝 **Configuration Files**: JSON schema-validated configuration files
-- 🎯 **CLI Arguments**: Full support for command-line argument overrides
-- 🔍 **Smart Validation**: Comprehensive configuration validation with helpful error messages
-- 📊 **Build Statistics**: Detailed build reports with timing and output information
-- 🌳 **Tree Shaking**: Intelligent tree-shaking support for both builders
-- 📦 **Multi-Format Output**: Support for ES, CJS, UMD, and IIFE formats
-- 🎨 **Pretty Output**: Color-coded console output with progress indicators
-- 🔄 **Watch Mode**: File watching for development (coming soon)
-- 🧹 **Clean Builds**: Automatic output directory cleaning
+- **Dual Builder Support**: Use Rollup, ESBuild, or both in the same build process
+- **Interactive CLI**: User-friendly prompts with Inquirer.js for configuration
+- **Configuration Files**: JSON schema-validated configuration files
+- **CLI Arguments**: Full support for command-line argument overrides
+- **Smart Validation**: Configuration validation with helpful error messages
+- **Build Statistics**: Detailed build reports with timing and output information
+- **Tree Shaking**: Intelligent tree-shaking support for both builders
+- **Multi-Format Output**: Support for ES, CJS, UMD, and IIFE formats
+- **Pretty Output**: Color-coded console output with progress indicators
+- **Watch Mode**: File watching for development (coming soon)
+- **Clean Builds**: Automatic output directory cleaning
 
-## 📦 Installation
+## Installation
 
 ```bash
 # Using pnpm
@@ -40,7 +40,7 @@ npm install -D @your-scope/mix-builder
 yarn add -D @your-scope/mix-builder
 ```
 
-## 🚀 Quick Start
+## Quick Start
 
 ### 1. Create a Configuration File
 
@@ -90,11 +90,11 @@ npx mix-builder --builder=esbuild --formats=es,cjs --minify
 }
 ```
 
-## ⚙️ Configuration
+## Configuration
 
 ### Configuration File Schema
 
-The builder uses a comprehensive JSON schema for configuration validation.
+The builder uses a JSON schema for configuration validation.
 
 #### Root Configuration
 
@@ -221,7 +221,7 @@ Entries can be defined as:
 - **`inline`**: Inline small dependencies
 - **`runtime`**: Use Babel runtime helpers (Rollup only)
 
-## 🖥️ CLI Usage
+## CLI Usage
 
 ### Available CLI Arguments
 
@@ -319,7 +319,7 @@ npx mix-builder --outdir=build --clean
 npx mix-builder --debug --log
 ```
 
-## 🔧 API Usage
+## API Usage
 
 ### Programmatic Usage
 
@@ -373,7 +373,7 @@ if (!validation.valid) {
 await buildWithMixBuilder(config);
 ```
 
-## 📚 Examples
+## Examples
 
 ### Example 1: Library with Multiple Entry Points
 
@@ -469,7 +469,7 @@ await buildWithMixBuilder(config);
 }
 ```
 
-## 🚀 Advanced Features
+## Advanced Features
 
 ### Glob Pattern Support
 
@@ -522,8 +522,8 @@ The builder provides detailed statistics after each build:
   Duration: 2.34s
 
   Output Files:
-    • index.ts [esm] (45.23 KB) - 234ms
-    • utils.ts [esm] (12.45 KB) - 156ms
+    - index.ts [esm] (45.23 KB) - 234ms
+    - utils.ts [esm] (12.45 KB) - 156ms
     ...
 
 📈 Overall Build Summary:
@@ -535,13 +535,13 @@ The builder provides detailed statistics after each build:
 
 ### Error Handling
 
-Comprehensive error handling with helpful messages:
+Error handling with helpful messages:
 
 ```bash
 ❌ Configuration validation failed:
-  • Invalid builder: foo. Must be 'rollup', 'esbuild', or 'both'
-  • Invalid formats: amd. Valid formats: es, esm, cjs, umd, iife
-  • Rollup configuration requires entries
+  - Invalid builder: foo. Must be 'rollup', 'esbuild', or 'both'
+  - Invalid formats: amd. Valid formats: es, esm, cjs, umd, iife
+  - Rollup configuration requires entries
 ```
 
 ### CI/CD Integration
@@ -571,7 +571,7 @@ This allows for flexible configuration strategies:
 npx mix-builder --minify=false --debug
 ```
 
-## 🎯 Best Practices
+## Best Practices
 
 1. **Use Configuration Files**: Keep your build configuration in `build-config.json` for consistency
 2. **Version Control**: Commit your `build-config.json` to version control
@@ -581,7 +581,7 @@ npx mix-builder --minify=false --debug
 6. **Tree Shaking**: Always enable for smaller bundles
 7. **Type Declarations**: Generate `.d.ts` files for TypeScript libraries
 
-## 🐛 Troubleshooting
+## Troubleshooting
 
 ### Common Issues
 
@@ -597,11 +597,11 @@ npx mix-builder --minify=false --debug
 **Issue**: "Inquirer not found"
 - **Solution**: The CLI will automatically install it, or run `pnpm add -D inquirer`
 
-## 📄 License
+## License
 
 MIT
 
-## 🤝 Contributing
+## Contributing
 
 Contributions are welcome! Please ensure:
 - All tests pass
@@ -609,7 +609,7 @@ Contributions are welcome! Please ensure:
 - Documentation is updated
 - Examples are provided
 
-## 📞 Support
+## Support
 
 For issues and questions:
 - GitHub Issues: [your-repo/issues]

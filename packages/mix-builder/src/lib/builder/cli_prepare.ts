@@ -375,7 +375,7 @@ export async function build() {
     if (!validation.valid) {
       console.error(chalk.red('\n❌ Configuration validation failed:\n'));
       validation.errors.forEach((error) => {
-        console.error(chalk.red(`  • ${error}`));
+        console.error(chalk.red(`  - ${error}`));
       });
       process.exit(1);
     }
