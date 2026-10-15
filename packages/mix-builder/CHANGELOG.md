@@ -1,5 +1,11 @@
 # @bambiste/mix-builder
 
+## 0.4.2
+
+### Patch Changes
+
+- c29a238: Updates esbuild to ^0.28.1. The bundled `__commonJS` and `__esm` helpers now rethrow an initialization error on subsequent calls instead of returning a partially initialized module.
+
 ## 0.4.1
 
 ### Patch Changes
