@@ -1,7 +1,7 @@
 # @bambiste/mix-builder
 
 A fast library bundler on top of **esbuild** and **Rollup**. Point it at your entries,
-pick your formats, and it emits `esm` / `cjs` / `iife` bundles — with CDN globals and a
+pick your formats, and it emits `esm` / `cjs` / `iife` bundles, with CDN globals and a
 per-file **raw + gzip** size report.
 
 ## Install
@@ -42,11 +42,11 @@ Keep options in a JSON config and pass `--buildConfigFile`:
 npx mix-builder --buildConfigFile=build-config.json
 ```
 
-An alternate config runs a separate pass — e.g. a CDN build that doesn't disturb the
+An alternate config runs a separate pass, e.g. a CDN build that doesn't disturb the
 default one:
 
 ```jsonc
-// build-config.cdn.json — iife globals for unpkg/jsdelivr
+// build-config.cdn.json, iife globals for unpkg/jsdelivr
 {
   "builder": "esbuild",
   "outdir": "dist/cdn",
@@ -168,13 +168,13 @@ builds don't re-report bundles from a previous pass.
 
 - **esbuild or Rollup** (`--builder=esbuild|rollup|both`), or per-entry config.
 - **Multi-format** output: `esm`, `cjs`, `iife`.
-- **CDN globals** — per-entry `globalName` + `noExternal` produce self-contained
+- **CDN globals**, per-entry `globalName` + `noExternal` produce self-contained
   `*.global.js` for `<script>` use on unpkg / jsdelivr.
-- **Banners** — a copyright comment with `{name}`/`{version}`/`{year}` filled from
+- **Banners**, a copyright comment with `{name}`/`{version}`/`{year}` filled from
   `package.json`, on the entries you pick.
-- **Size reporting** — raw + gzip per file, with a total.
-- **Typings** — `--dts` emits `.d.ts` alongside the bundles.
-- **External handling** — auto-externalize deps, or `noExternal` to inline them.
+- **Size reporting**, raw + gzip per file, with a total.
+- **Typings**, `--dts` emits `.d.ts` alongside the bundles.
+- **External handling**, auto-externalize deps, or `noExternal` to inline them.
 
 ## License
 

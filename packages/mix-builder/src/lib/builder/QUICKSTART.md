@@ -2,7 +2,7 @@
 
 Get started with Mix Builder in under 5 minutes!
 
-## 📦 Installation
+## Installation
 
 ```bash
 # Using pnpm (recommended)
@@ -15,7 +15,7 @@ npm install -D @your-scope/mix-builder
 yarn add -D @your-scope/mix-builder
 ```
 
-## 🚀 Three Ways to Use Mix Builder
+## Three Ways to Use Mix Builder
 
 ### 1. Interactive Mode (Easiest)
 
@@ -63,7 +63,7 @@ Pass all options as command-line arguments:
 npx mix-builder --builder=esbuild --formats=esm,cjs --minify --reactExternal
 ```
 
-## 📝 Common Use Cases
+## Common Use Cases
 
 ### Use Case 1: Simple Library
 
@@ -286,7 +286,7 @@ npx mix-builder --buildConfigFile=build-config.dev.json
 
 ---
 
-## 🎯 Common CLI Commands
+## Common CLI Commands
 
 ```bash
 # Build with ESBuild only
@@ -326,7 +326,7 @@ npx mix-builder --debug
 CI=true npx mix-builder
 ```
 
-## 📋 Configuration Priority
+## Configuration Priority
 
 Mix Builder merges configurations in this order (highest to lowest priority):
 
@@ -341,7 +341,7 @@ Example:
 npx mix-builder --minify=false
 ```
 
-## 🔧 Essential Configuration Options
+## Essential Configuration Options
 
 ### Builder Selection
 ```json
@@ -408,7 +408,7 @@ Or with per-entry config:
 }
 ```
 
-## 📊 Understanding Build Output
+## Understanding Build Output
 
 After running, you'll see:
 
@@ -450,7 +450,7 @@ After running, you'll see:
 ✅ Build completed successfully!
 ```
 
-## 🐛 Troubleshooting
+## Troubleshooting
 
 ### Problem: "No entries found"
 **Solution**: Check that your entry files exist and paths are correct.
@@ -469,7 +469,7 @@ After running, you'll see:
 
 ```bash
 ❌ Configuration validation failed:
-  • Invalid builder: foo. Must be 'rollup', 'esbuild', or 'both'
+  - Invalid builder: foo. Must be 'rollup', 'esbuild', or 'both'
 ```
 
 ### Problem: Build works locally but fails in CI
@@ -511,14 +511,14 @@ npx mix-builder --reactExternal
 }
 ```
 
-## 🎓 Next Steps
+## Next Steps
 
 1. **Read the full README**: `./README.md`
 2. **Check example configs**: `./examples/`
 3. **Explore the schema**: `./schema/build-config.schema.json`
 4. **Join the community**: [Your Discord/Forum link]
 
-## 💡 Tips & Tricks
+## Tips & Tricks
 
 1. **Use glob patterns** for multiple files:
    ```json
@@ -548,7 +548,7 @@ npx mix-builder --reactExternal
    npx mix-builder --clean
    ```
 
-## 🎉 You're Ready!
+## You're Ready!
 
 Start building with:
 
@@ -556,4 +556,3 @@ Start building with:
 npx mix-builder
 ```
 
-Happy building! 🚀

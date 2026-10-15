@@ -45,7 +45,7 @@ function parseArgs(argv: string[]): Flags {
   return flags;
 }
 
-const HELP = `${chalk.bold('mix-env')} — sync .env files <-> GitHub Actions secrets
+const HELP = `${chalk.bold('mix-env')}, sync .env files <-> GitHub Actions secrets
 
 ${chalk.bold('Usage')}
   mix-env push [options]    Upload matching .env files as GitHub secrets
@@ -84,7 +84,7 @@ async function resolveEnvFile(flags: Flags, interactive: boolean): Promise<strin
         { name: 'Production  (.env.prod)', value: 'production' },
         { name: 'Development (.env.dev)', value: 'development' },
         { name: 'Plain       (.env)', value: 'plain' },
-        { name: 'Custom…', value: 'custom' },
+        { name: 'Custom...', value: 'custom' },
       ],
     },
   ]);
@@ -119,7 +119,7 @@ async function runPush(flags: Flags): Promise<number> {
   console.log();
 
   if (flags.dryRun) {
-    console.log(chalk.dim('(dry run — no secrets were set)'));
+    console.log(chalk.dim('(dry run, no secrets were set)'));
     return 0;
   }
 
@@ -151,7 +151,7 @@ async function runPull(flags: Flags): Promise<number> {
     if (existing.length > 0) {
       console.log(
         chalk.yellow(
-          `\nNothing written — ${existing.length} target file(s) already exist. Use --force to overwrite:`
+          `\nNothing written, ${existing.length} target file(s) already exist. Use --force to overwrite:`
         )
       );
       for (const e of existing) console.log(`  ${chalk.dim(e)}`);

@@ -3,7 +3,7 @@
  *
  * A package with `"type": "module"` that ships one `.d.ts` for both its `import` and
  * `require` conditions gives CommonJS consumers ESM-shaped types. TypeScript then reports
- * TS1479 — "cannot be imported with require" — even though the `.cjs` file beside it runs
+ * TS1479, "cannot be imported with require", even though the `.cjs` file beside it runs
  * perfectly well. The fix is a second declaration whose extension says CommonJS.
  *
  * Copying is not enough. A declaration that says `from './x.js'` still points at the ESM
@@ -13,7 +13,7 @@
 import { readdirSync, readFileSync, statSync, writeFileSync } from 'fs';
 import { join } from 'path';
 
-/** `from './x.js'`, `require('../y.js')`, `import('./z.js')` — the specifier only. */
+/** `from './x.js'`, `require('../y.js')`, `import('./z.js')`, the specifier only. */
 const RELATIVE = /(\bfrom\s*|\brequire\s*\(\s*|\bimport\s*\(\s*)(['"])(\.\.?\/[^'"]*?)\.js\2/g;
 
 /** A declaration's own map does not follow it, and a dangling link is worse than none. */

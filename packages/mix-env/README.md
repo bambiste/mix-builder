@@ -4,7 +4,7 @@
 
 # @bambiste/mix-env
 
-**Sync `.env` files to and from GitHub Actions secrets across a monorepo — push local env files up as secrets, and materialize them back into files locally, in CI, or on a VPS.**
+**Sync `.env` files to and from GitHub Actions secrets across a monorepo, push local env files up as secrets, and materialize them back into files locally, in CI, or on a VPS.**
 
 ![License: MIT](https://img.shields.io/badge/License-MIT-22c55e.svg)
 ![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178c6?logo=typescript&logoColor=white)
@@ -12,7 +12,7 @@
 
 ---
 
-`mix-env` solves a common monorepo problem: each app has a `.env.prod` (or `.env.dev`, …) full of secrets that must **not** be committed, but still need to reach CI and the server. It scans the workspace for matching env files, stores each one as a GitHub Actions secret, and can recreate them anywhere the secrets are available as environment variables.
+`mix-env` solves a common monorepo problem: each app has a `.env.prod` (or `.env.dev`, ...) full of secrets that must **not** be committed, but still need to reach CI and the server. It scans the workspace for matching env files, stores each one as a GitHub Actions secret, and can recreate them anywhere the secrets are available as environment variables.
 
 ## How it works
 
@@ -22,7 +22,7 @@
 - **push** (local, uses `gh`): find files → upload as secrets.
 - **pull** (CI / VPS): read those secrets from the environment → write the files back (mode `600`).
 
-> GitHub secrets are write-only — you can't read their values back via the API. So `pull` reads from `process.env`, which CI populates from the secrets (and which you forward to a VPS over SSH).
+> GitHub secrets are write-only, you can't read their values back via the API. So `pull` reads from `process.env`, which CI populates from the secrets (and which you forward to a VPS over SSH).
 
 ## Install
 
@@ -56,7 +56,7 @@ mix-env pull --type production    # writes packages/*/.env.prod from *_ENV_PROD 
   env:
     BACKEND_ENV_PROD: ${{ secrets.BACKEND_ENV_PROD }}
     STOREFRONT_ENV_PROD: ${{ secrets.STOREFRONT_ENV_PROD }}
-    # …one line per app secret
+    # ...one line per app secret
 ```
 
 ### On a VPS (over SSH)

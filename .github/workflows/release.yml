@@ -31,7 +31,7 @@ jobs:
         with:
           version: 10
 
-      # NOTE: no `registry-url` here on purpose — it writes a temp .npmrc via
+      # NOTE: no `registry-url` here on purpose, it writes a temp .npmrc via
       # NPM_CONFIG_USERCONFIG that authenticates npm with NODE_AUTH_TOKEN, shadowing
       # the token the "Configure registry auth" step writes to ~/.npmrc → E404 on
       # publish. Auth must come from ~/.npmrc. (Re-add only alongside provenance.)
@@ -79,10 +79,10 @@ jobs:
         run: |
           TAG=$(node -p "require('./.changeset/pre.json').tag" 2>/dev/null || true)
           if [ -z "$TAG" ]; then
-            echo "Not in pre mode — latest is authoritative; nothing to do."
+            echo "Not in pre mode, latest is authoritative; nothing to do."
             exit 0
           fi
-          echo "Pointing the '$TAG' dist-tag at the published versions…"
+          echo "Pointing the '$TAG' dist-tag at the published versions..."
           echo '${{ steps.changesets.outputs.publishedPackages }}' \
             | node -e 'for (const p of JSON.parse(require("fs").readFileSync(0,"utf8"))) console.log(p.name + "@" + p.version)' \
             | while read -r spec; do

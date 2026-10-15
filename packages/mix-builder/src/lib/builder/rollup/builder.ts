@@ -289,7 +289,7 @@ async function resolveConfig(
     })
   );
 
-  // TypeScript plugin — opt-in (set plugins.typescript.enabled = true). Packages that
+  // TypeScript plugin, opt-in (set plugins.typescript.enabled = true). Packages that
   // emit their own declarations via a separate `build:typings` (tsc) and bundle JS with
   // esbuild don't need rollup's TS plugin, so it's off unless explicitly enabled.
   const ts_options = options.plugins?.typescript;

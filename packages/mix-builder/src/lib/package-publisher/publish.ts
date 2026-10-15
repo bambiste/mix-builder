@@ -1,5 +1,5 @@
 /**
- * @fileoverview Robust NPM Package Publisher
+ * @fileoverview NPM package publisher
  * @description Handles publishing packages to npm with version management, error recovery, and progress tracking
  * @version 2.0.0
  */

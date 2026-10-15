@@ -3,7 +3,7 @@ import { build } from './cli_prepare.js';
 import chalk from 'chalk';
 
 // inquirer is a declared dependency of @bambiste/mix-builder, so it resolves from the
-// package's own install — cli_prepare imports it directly. (The old code ran
+// package's own install, cli_prepare imports it directly. (The old code ran
 // `pnpm add -D inquirer` in the CONSUMER's project on every build when
 // `./node_modules/inquirer` wasn't in the cwd, which reinstalled it each time and
 // polluted the consumer's package.json.)
