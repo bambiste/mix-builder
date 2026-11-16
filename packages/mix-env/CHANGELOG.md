@@ -1,5 +1,11 @@
 # @bambiste/mix-env
 
+## 0.1.1
+
+### Patch Changes
+
+- e05e00c: The package now includes `repository`, `homepage`, and `bugs` fields in its package.json, so npm links to the source, README, and issue tracker.
+
 ## 0.1.0
 
 ### Minor Changes
