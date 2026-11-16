@@ -1,5 +1,13 @@
 # @bambiste/mix-builder
 
+## 0.4.3
+
+### Patch Changes
+
+- 05c6fd2: mix-builder now uses vite ^6.4.6 and serialize-javascript 7.1.4 to address security advisories.
+- e05e00c: The package now includes `repository`, `homepage`, and `bugs` fields in its package.json, so npm links to the source, README, and issue tracker.
+- beb7296: esbuild now builds all ESM entries in a single run per group of equal options, emitting shared modules as a single chunk while keeping output paths unchanged and writing banners on each entry that requests one.
+
 ## 0.4.2
 
 ### Patch Changes
