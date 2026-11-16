@@ -1,6 +1,6 @@
 {
   "name": "@bambiste/mix-env",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Sync .env files to/from GitHub Actions secrets across a monorepo: push local env files up as secrets, and materialize them back into files (locally, in CI, or on a VPS).",
   "private": false,
   "publishConfig": {
@@ -40,7 +40,16 @@
   },
   "devDependencies": {
     "@types/node": "^22.20.5",
-    "vitest": "^4.1.11"
+    "vitest": "^4.1.12"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bambiste/mix-builder.git",
+    "directory": "packages/mix-env"
+  },
+  "homepage": "https://github.com/bambiste/mix-builder/tree/main/packages/mix-env#readme",
+  "bugs": {
+    "url": "https://github.com/bambiste/mix-builder/issues"
+  }
 }
