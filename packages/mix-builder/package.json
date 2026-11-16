@@ -62,5 +62,14 @@
     "vite": "^6.4.6"
   },
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bambiste/mix-builder.git",
+    "directory": "packages/mix-builder"
+  },
+  "homepage": "https://github.com/bambiste/mix-builder/tree/main/packages/mix-builder#readme",
+  "bugs": {
+    "url": "https://github.com/bambiste/mix-builder/issues"
+  },
   "description": "A fast esbuild + Rollup library bundler: multi-format output (esm/cjs/iife), CDN globals, and per-file raw + gzip size reporting."
 }
