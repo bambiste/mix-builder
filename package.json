@@ -35,7 +35,10 @@
       "smol-toml@^1": "^1.9.0",
       "source-map-js@^1": "^1.2.2",
       "tmp@^0.2": "^0.2.7",
-      "baseline-browser-mapping@^2": "^2.11.0"
+      "baseline-browser-mapping@^2": "^2.11.0",
+      "follow-redirects@^1": "^1.16.3",
+      "esbuild@^0.27": "^0.28.2",
+      "serialize-javascript@^7": "^7.1.4"
     }
   }
 }

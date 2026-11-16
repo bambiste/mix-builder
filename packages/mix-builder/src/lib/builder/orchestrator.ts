@@ -1,6 +1,6 @@
 import chalk from 'chalk';
 import { emitCjsTypes } from './cjs-types.js';
-import { existsSync, rmSync, readFileSync, readdirSync, statSync } from 'fs';
+import { existsSync, rmSync, readFileSync, readdirSync, statSync, writeFileSync } from 'fs';
 import { gzipSync } from 'zlib';
 import {
   BuilderConfig,
@@ -239,6 +239,9 @@ async function buildWithESBuild(config: BuilderConfig): Promise<BuildStats> {
 
   const progress = createProgressIndicator(entries.length);
 
+  // ESM entries that can share chunks, built together after the loop (see buildShared).
+  const shared: SharedEntry[] = [];
+
   // Build each entry
   for (const entry of entries) {
     const entryStartTime = Date.now();
@@ -382,6 +385,15 @@ async function buildWithESBuild(config: BuilderConfig): Promise<BuildStats> {
           },
         },
       };
+      // One build per entry gives each entry its own copy of every module it imports, and
+      // with it its own module state: a registry, a context, a hook set in one entry is not
+      // the one another entry reads. ESM entries are built together instead, so a module
+      // two of them import is emitted once, as a shared chunk.
+      if (buildOptions.splitting && buildOptions.bundle) {
+        shared.push({ inputFile, outputDir, banner, buildOptions, format });
+        continue;
+      }
+
       const result = await esbuildBuild(buildOptions);
 
       if (args.copy_pkg) {
@@ -416,8 +428,79 @@ async function buildWithESBuild(config: BuilderConfig): Promise<BuildStats> {
     }
   }
 
+  for (const group of groupShared(shared)) {
+    const groupStart = Date.now();
+    try {
+      await buildShared(group, args.outdir || 'dist');
+      for (const item of group) {
+        stats.success++;
+        stats.outputs.push({ entry: path.basename(item.inputFile), format: item.format, duration: Date.now() - groupStart });
+      }
+      if (args.log) {
+        console.log(chalk.green(`  ✓ Built ${group.length} entries together [esm] in ${formatDuration(Date.now() - groupStart)}`));
+      }
+    } catch (error) {
+      stats.failed += group.length;
+      console.error(chalk.red(`  ✗ Failed to build ${group.length} esm entries together:`), (error as Error).message);
+    }
+  }
+  if (args.copy_pkg && shared.length) copyPkgJson(process.cwd(), args.outdir || 'dist');
+
   stats.duration = Date.now() - startTime;
   return stats;
+}
+
+export interface SharedEntry {
+  inputFile: string;
+  outputDir: string;
+  banner: BuildOptions['banner'] | undefined;
+  buildOptions: BuildOptions;
+  format: 'esm' | 'cjs' | 'iife';
+}
+
+/**
+ * Entries whose options agree, apart from where they land and their banner, can be one build.
+ * Anything else that differs (externals, tree-shaking, defines) keeps them apart.
+ */
+export function groupShared(entries: SharedEntry[]): SharedEntry[][] {
+  const groups = new Map<string, SharedEntry[]>();
+  for (const item of entries) {
+    const { entryPoints: _e, outdir: _o, banner: _b, ...rest } = item.buildOptions;
+    const key = JSON.stringify(rest);
+    const group = groups.get(key);
+    if (group) group.push(item);
+    else groups.set(key, [item]);
+  }
+  return [...groups.values()];
+}
+
+/**
+ * One esbuild run for a group, with every entry keyed by the path it had when built alone,
+ * so the published layout and the `exports` that point into it do not move. A banner belongs
+ * to an entry rather than to the build (the config's `include` decides which files get one),
+ * so it is written onto that entry's output afterwards and the shared chunks stay bare.
+ */
+export async function buildShared(group: SharedEntry[], baseOutdir: string): Promise<void> {
+  const outExtension = group[0].buildOptions.outExtension?.['.js'] ?? '.js';
+  const named = group.map((item) => {
+    const dir = path.relative(baseOutdir, item.outputDir);
+    const name = path.join(dir, path.basename(item.inputFile).replace(/\.[cm]?[jt]sx?$/, ''));
+    return { item, name };
+  });
+  await esbuildBuild({
+    ...group[0].buildOptions,
+    banner: undefined,
+    outdir: baseOutdir,
+    // The keys carry each entry's folder; `[name]` alone would flatten them into one.
+    entryNames: '[dir]/[name]',
+    entryPoints: Object.fromEntries(named.map(({ item, name }) => [name, item.inputFile])),
+  });
+  for (const { item, name } of named) {
+    const text = (item.banner as { js?: string } | undefined)?.js;
+    if (!text) continue;
+    const file = path.join(baseOutdir, name + outExtension);
+    writeFileSync(file, `${text}\n${readFileSync(file, 'utf8')}`);
+  }
 }
 
 /**
