@@ -1,18 +1,21 @@
 name: CI
 
+# Pull requests run it here. Pushes to main and next run it from release.yml, which waits for
+# it before versioning or publishing, so a push is built and tested once.
 on:
-  push:
-    branches: [main, next]
   pull_request:
     branches: [main, next]
+  workflow_call:
 
 permissions:
   contents: read
   packages: read
   actions: read
 
+# Its own prefix: called from release.yml, `github.workflow` is the caller's name, and sharing
+# the caller's group would leave each run waiting on the other.
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: ci-${{ github.event_name }}-${{ github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
