@@ -197,6 +197,35 @@ function renderOutputFiles(outdir: string, since = 0): void {
 /**
  * Build with ESBuild
  */
+/**
+ * The esbuild runs one config asks for: the build itself, and with `esbuild.development`
+ * a second one for the `development` export condition.
+ *
+ * The two differ in `__DEV__` and `NODE_ENV` only, so a package writes dev-only code as
+ * `if (__DEV__) ...` and a production bundle drops it: the constant is folded at build
+ * time, which a runtime check such as `isProduction()` never is. The development build
+ * goes to `dist/dev` unless `development.outdir` says otherwise, and never cleans, so it
+ * cannot remove the build it sits beside.
+ */
+export function esbuildVariants<C extends Record<string, any>>(conf: C, outdir: string): C[] {
+  const dev = conf.development ?? conf.esbuild?.development;
+  if (!dev) return [conf];
+  const define = { ...(conf.esbuild?.define ?? conf.define ?? {}) };
+  // Written into the `esbuild` block too: that is where the builder reads its options from.
+  const variant = (extra: Record<string, unknown>): C =>
+    ({ ...conf, ...extra, esbuild: { ...(conf.esbuild ?? {}), ...extra } }) as C;
+  return [
+    variant({ define: { ...define, __DEV__: 'false' } }),
+    variant({
+      outdir: (typeof dev === 'object' && dev.outdir) || `${outdir}/dev`,
+      define: { ...define, __DEV__: 'true' },
+      nodeEnv: 'development',
+      clean: false,
+      copy_pkg: false,
+    }),
+  ];
+}
+
 async function buildWithESBuild(config: BuilderConfig): Promise<BuildStats> {
   const startTime = Date.now();
 
@@ -648,9 +677,11 @@ export async function buildWithMixBuilder(
         ...config,
         ...(config.esbuild ?? {}),
       };
-      const esbuildStats = await buildWithESBuild(conf);
-      allStats.push(esbuildStats);
-      displayBuildStats(esbuildStats);
+      for (const variant of esbuildVariants(conf, resolveOutdir(config))) {
+        const esbuildStats = await buildWithESBuild(variant);
+        allStats.push(esbuildStats);
+        displayBuildStats(esbuildStats);
+      }
     }
 
     // Run Rollup if configured
