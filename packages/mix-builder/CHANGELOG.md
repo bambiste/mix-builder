@@ -1,5 +1,11 @@
 # @bambiste/mix-builder
 
+## 0.5.0
+
+### Minor Changes
+
+- d9f5176: `esbuild.development` now creates a second copy in `dist/dev` with `__DEV__` true and `NODE_ENV` set to development, while the regular build uses `__DEV__` false.
+
 ## 0.4.3
 
 ### Patch Changes
