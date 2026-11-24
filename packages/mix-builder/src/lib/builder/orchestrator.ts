@@ -207,13 +207,22 @@ function renderOutputFiles(outdir: string, since = 0): void {
  * goes to `dist/dev` unless `development.outdir` says otherwise, and never cleans, so it
  * cannot remove the build it sits beside.
  */
-export function esbuildVariants<C extends Record<string, any>>(conf: C, outdir: string): C[] {
+/** What each variant sets over the configuration it was made from. */
+export interface EsbuildVariantFields {
+  define?: Record<string, string>;
+  outdir?: string;
+  nodeEnv?: string;
+  clean?: boolean;
+  copy_pkg?: boolean;
+}
+
+export function esbuildVariants<C extends Record<string, any>>(conf: C, outdir: string): (C & EsbuildVariantFields)[] {
   const dev = conf.development ?? conf.esbuild?.development;
   if (!dev) return [conf];
   const define = { ...(conf.esbuild?.define ?? conf.define ?? {}) };
   // Written into the `esbuild` block too: that is where the builder reads its options from.
-  const variant = (extra: Record<string, unknown>): C =>
-    ({ ...conf, ...extra, esbuild: { ...(conf.esbuild ?? {}), ...extra } }) as C;
+  const variant = (extra: EsbuildVariantFields): C & EsbuildVariantFields =>
+    ({ ...conf, ...extra, esbuild: { ...(conf.esbuild ?? {}), ...extra } }) as C & EsbuildVariantFields;
   return [
     variant({ define: { ...define, __DEV__: 'false' } }),
     variant({
